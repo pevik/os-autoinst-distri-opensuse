@@ -18,6 +18,7 @@ use testapi qw(is_serial_terminal :DEFAULT);
 use utils;
 use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC);
 use File::Basename 'basename';
+use lockapi;
 require bmwqemu;
 
 sub start_result {
@@ -246,8 +247,11 @@ sub run {
     my $cmd_pattern = get_var('LTP_COMMAND_PATTERN') || '.*';
     my $cmd_exclude = get_var('LTP_COMMAND_EXCLUDE') || '$^';
     my $timeout     = get_var('LTP_TIMEOUT')         || 900;
-    my $is_posix    = $cmd_file =~ m/^\s*openposix\s*$/i;
-    my $is_network  = $cmd_file =~ m/^\s*net\./;
+    my $liface      = get_var('LTP_LHOST_IFACES')    || 'ens4';
+    my $riface      = get_var('LTP_RHOST_IFACES')    || $liface;
+    my $net_use_server = get_var('PARALLEL_WITH');
+    my $is_posix       = $cmd_file =~ m/^\s*openposix\s*$/i;
+    my $is_network     = $cmd_file =~ m/^\s*net\./;
 
     my @tests;
     if ($is_posix) {
@@ -260,17 +264,19 @@ sub run {
     assert_script_run('cd /opt/ltp/testcases/bin');
 
     if ($is_network) {
-        # Disable network managing daemons and firewall. Once we have network
-        # set, we don't want network managing daemons to touch it (this is
-        # required at least for dhcp tests). Firewalls are stop as it can block
-        # iptables testing.
-        script_run('systemctl stop NetworkManager SuSEfirewall2 wicked wickedd');
+        if (!$net_use_server) {
+            # Disable network managing daemons and firewall. Once we have network
+            # set, we don't want network managing daemons to touch it (this is
+            # required at least for dhcp tests). Firewalls are stop as it can block
+            # iptables testing.
+            script_run('systemctl stop NetworkManager SuSEfirewall2 wicked wickedd');
 
-        # dhclient requires no wicked service not only running but also disabled
-        script_run(
-            'systemctl --no-pager -p Id show network.service | grep -q Id=wicked.service &&
-{ export ENABLE_WICKED=1; systemctl disable wicked; }'
-        );
+            # dhclient requires no wicked service not only running but also disabled
+            script_run(
+                'systemctl --no-pager -p Id show network.service | grep -q Id=wicked.service &&
+    { export ENABLE_WICKED=1; systemctl disable wicked; }'
+            );
+        }
 
         script_run('ps axf');
         script_run('netstat -ap');
@@ -278,6 +284,11 @@ sub run {
         script_run('cat /etc/resolv.conf');
         script_run('cat /etc/nsswitch.conf');
         script_run('cat /etc/hosts');
+
+        if ($net_use_server) {
+            # FIXME: correct ip in RHOST
+            assert_script_run(qq(export TST_USE_SSH=1 RHOST='10.0.2.15' LHOST_IFACES='$liface' RHOST_IFACES='$riface'));
+        }
 
         # emulate /opt/ltp/testscripts/network.sh
         assert_script_run('TST_TOTAL=1 TCID="network_settings"; . test_net.sh; export TCID= TST_LIB_LOADED=');
@@ -288,11 +299,16 @@ sub run {
         script_run('ip route');
     }
 
+    if ($net_use_server) {
+        mutex_lock('ltp_server_ready');
+        mutex_unlock('ltp_server_ready');
+    }
+
     for my $test (@tests) {
         my $fin_msg    = "### TEST $test->{name} COMPLETE >>> ";
         my $cmd_text   = qq($test->{command}; echo "$fin_msg\$?");
         my $start_time = thetime();
-        my $set_rhost  = $is_network && $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
+        my $set_rhost  = $is_network && !$net_use_server && $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
 
         if ($set_rhost) {
             assert_script_run(q(export RHOST='127.0.0.1'));

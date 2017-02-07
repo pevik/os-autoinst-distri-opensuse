@@ -403,6 +403,10 @@ sub maybe_load_kernel_tests {
         loadtest 'kernel/ltp_setup_networking';
         loadtest 'kernel/shutdown_ltp';
     }
+    elsif (get_var('LTP_SERVER')) {
+        loadtest 'kernel/boot_ltp';
+        loadtest 'kernel/ltp_server';
+    }
     elsif (get_var('LTP_COMMAND_FILE')) {
         if (get_var('INSTALL_KOTD')) {
             loadtest 'kernel/install_kotd';
