@@ -13,7 +13,6 @@
 use 5.018;
 use warnings;
 use base 'opensusebasetest';
-use testapi;
 
 sub run {
     my $self = shift;
@@ -28,9 +27,6 @@ sub run {
     }
 
     assert_script_run('export LTPROOT=/opt/ltp; export LTP_COLORIZE_OUTPUT=n TMPDIR=/tmp PATH=$LTPROOT/testcases/bin:$PATH');
-
-    # setup for LTP networking tests
-    assert_script_run("export PASSWD='$testapi::password'");
 
     my $block_dev = get_var('LTP_BIG_DEV');
     if ($block_dev && get_var('NUMDISKS') > 1) {

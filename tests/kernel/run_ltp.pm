@@ -246,6 +246,8 @@ sub run {
     my $cmd_pattern = get_var('LTP_COMMAND_PATTERN') || '.*';
     my $cmd_exclude = get_var('LTP_COMMAND_EXCLUDE') || '$^';
     my $timeout     = get_var('LTP_TIMEOUT')         || 900;
+    my $lhost_ifaces = get_var('LTP_NET_LHOST_IFACES');
+    my $rhost_ifaces = get_var('LTP_NET_RHOST_IFACES');
     my $is_posix    = $cmd_file =~ m/^\s*openposix\s*$/i;
     my $is_network  = $cmd_file =~ m/^\s*net\./;
 
@@ -262,6 +264,17 @@ sub run {
     script_run('$LTPROOT/ver_linux');
 
     if ($is_network) {
+        # setup for LTP networking tests
+        assert_script_run("export PASSWD='$testapi::password'");
+
+        if ($lhost_ifaces) {
+            assert_script_run("export LHOST_IFACES='$lhost_ifaces'");
+        }
+
+        if ($rhost_ifaces) {
+            assert_script_run("export RHOST_IFACES='$rhost_ifaces'");
+        }
+
         # Disable network managing daemons and firewall. Once we have network
         # set, we don't want network managing daemons to touch it (this is
         # required at least for dhcp tests). Firewalls are stop as it can block
