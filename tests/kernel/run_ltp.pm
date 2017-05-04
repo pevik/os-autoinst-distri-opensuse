@@ -260,6 +260,7 @@ sub run {
     assert_script_run('cd $LTPROOT/testcases/bin');
 
     script_run('$LTPROOT/ver_linux');
+    #script_run('echo sleep; sleep'); # FIXME: debug
 
     if ($is_network) {
         # poo#18762: Sometimes there is physical NIC which is not configured.
@@ -307,15 +308,53 @@ EOF
 
         script_run('env');
 
+        script_run('iptables -L');
+
+        script_run('ip6tables -L');
+        #script_run('ip6tables -P INPUT DROP');
+        #script_run('ip6tables -P OUTPUT DROP');
+        #script_run('ip6tables -P FORWARD DROP');
+        #script_run('ip6tables -P reject_func DROP');
+        script_run('ip6tables -P INPUT ACCEPT');
+        script_run('ip6tables -P OUTPUT ACCEPT');
+        script_run('ip6tables -P FORWARD ACCEPT');
+        script_run('ip6tables -P reject_func ACCEPT');
+        script_run('ip6tables -L');
+
         script_run('ip addr');
         script_run('ip netns exec ltp_ns ip addr');
+
         script_run('ip route');
+        script_run('ip netns exec ltp_ns ip route');
+
         script_run('ip -6 route');
+        script_run('ip netns exec ltp_ns ip -6 route');
 
         script_run('ping -c 2 $IPV4_NETWORK.$LHOST_IPV4_HOST');
         script_run('ping -c 2 $IPV4_NETWORK.$RHOST_IPV4_HOST');
         script_run('ping6 -c 2 $IPV6_NETWORK:$LHOST_IPV6_HOST');
         script_run('ping6 -c 2 $IPV6_NETWORK:$RHOST_IPV6_HOST');
+
+        script_run('ping -I ltp_ns_veth1 -c 2 $IPV4_NETWORK.$LHOST_IPV4_HOST');
+        script_run('ping -I ltp_ns_veth1 -c 2 $IPV4_NETWORK.$RHOST_IPV4_HOST');
+        script_run('ping6 -I ltp_ns_veth1 -c 2 $IPV6_NETWORK:$LHOST_IPV6_HOST');
+        script_run('ping6 -I ltp_ns_veth1 -c 2 $IPV6_NETWORK:$RHOST_IPV6_HOST');
+
+        script_run('ping -I ltp_ns_veth2 -c 2 $IPV4_NETWORK.$LHOST_IPV4_HOST');
+        script_run('ping -I ltp_ns_veth2 -c 2 $IPV4_NETWORK.$RHOST_IPV4_HOST');
+        script_run('ping6 -I ltp_ns_veth2 -c 2 $IPV6_NETWORK:$LHOST_IPV6_HOST');
+        script_run('ping6 -I ltp_ns_veth2 -c 2 $IPV6_NETWORK:$RHOST_IPV6_HOST');
+
+        script_run('ip route get $IPV4_NETWORK.$LHOST_IPV4_HOST');
+        script_run('ip route get $IPV4_NETWORK.$RHOST_IPV4_HOST');
+        script_run('ip route get $IPV6_NETWORK:$LHOST_IPV6_HOST');
+        script_run('ip route get $IPV6_NETWORK:$RHOST_IPV6_HOST');
+
+        script_run('ip neigh');
+        script_run('ip netns exec ltp_ns ip neigh');
+
+        script_run('ip -6 neigh');
+        script_run('ip netns exec ltp_ns ip -6 neigh');
     }
 
     for my $test (@tests) {
