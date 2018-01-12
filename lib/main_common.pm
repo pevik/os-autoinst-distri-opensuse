@@ -414,6 +414,7 @@ sub unregister_needle_tags {
 }
 
 sub boot_hdd_image {
+    bmwqemu::fctwarn("pev: main_common::boot_hdd_image: BOOT_HDD_IMAGE: '" . get_var('BOOT_HDD_IMAGE') . "'\n"); # FIXME: debug
     get_required_var('BOOT_HDD_IMAGE');
     if (check_var("BACKEND", "svirt")) {
         if (check_var("ARCH", "s390x")) {

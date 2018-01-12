@@ -305,6 +305,7 @@ SUT is already expected to be within the grub menu. C<wait_boot> continues
 from there.
 =cut
 sub wait_boot {
+    bmwqemu::fctwarn("pev: start opensusebasetest::wait_boot\n"); # FIXME: debug
     my ($self, %args) = @_;
     my $bootloader_time = $args{bootloader_time} // 100;
     my $textmode        = $args{textmode};

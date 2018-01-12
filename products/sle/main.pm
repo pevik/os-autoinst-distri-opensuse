@@ -1576,6 +1576,7 @@ else {
         load_reboot_tests();
     }
     elsif (get_var("BOOT_HDD_IMAGE") && !is_jeos) {
+        bmwqemu::fctwarn("pev: products/sle/main.pm boot_hdd_image: BOOT_HDD_IMAGE: '" . get_var('BOOT_HDD_IMAGE') . "'\n"); # FIXME: debug
         if (get_var("RT_TESTS")) {
             set_var('INSTALLONLY', 1);
             loadtest "rt/boot_rt_kernel";

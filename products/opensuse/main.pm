@@ -904,6 +904,7 @@ else {
         load_zdup_tests();
     }
     elsif (get_var("BOOT_HDD_IMAGE")) {
+        bmwqemu::fctwarn("pev: products/opensuse/main.pm boot_hdd_image: BOOT_HDD_IMAGE: '" . get_var('BOOT_HDD_IMAGE') . "'\n"); # FIXME: debug
         boot_hdd_image;
         if (get_var("ISCSI_SERVER")) {
             set_var('INSTALLONLY', 1);

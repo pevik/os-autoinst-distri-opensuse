@@ -24,7 +24,13 @@ use utils 'OPENQA_FTP_URL';
 sub set_svirt_domain_elements {
     my ($svirt) = shift;
 
+    bmwqemu::fctwarn("pev: CALL: START set_svirt_domain_elements\n"); # FIXME: debug
+    bmwqemu::fctwarn("pev: CALL: BOOT_HDD_IMAGE: '" . get_var('BOOT_HDD_IMAGE') . "'\n"); # FIXME: debug
+    bmwqemu::fctwarn("pev: CALL: PATCHED_SYSTEM: '" . get_var('PATCHED_SYSTEM') . "'\n"); # FIXME: debug
+    bmwqemu::fctwarn("pev: CALL: ZDUP: '" . get_var('ZDUP') . "'\n"); # FIXME: debug
+
     if (!get_var('BOOT_HDD_IMAGE') or (get_var('PATCHED_SYSTEM') and !get_var('ZDUP'))) {
+        bmwqemu::fctwarn("pev: CALL: set_svirt_domain_elements IF\n"); # FIXME: debug
         my $repo    = "$utils::OPENQA_FTP_URL/" . get_required_var('REPO_0');
         my $cmdline = get_var('VIRSH_CMDLINE') . " install=$repo ";
         my $name    = $svirt->name;
@@ -55,6 +61,7 @@ sub set_svirt_domain_elements {
         $svirt->change_domain_element(os => initrd  => "$zkvm_img_path/$name.initrd");
         $svirt->change_domain_element(os => kernel  => "$zkvm_img_path/$name.kernel");
         $svirt->change_domain_element(os => cmdline => $cmdline);
+        bmwqemu::fctwarn("pev: CALL: set_svirt_domain_elements cmdline: '$cmdline'\n"); # FIXME: debug
 
         # show this on screen and make sure that kernel and initrd are actually saved
         type_string "wget $repo/boot/s390x/initrd -O $zkvm_img_path/$name.initrd\n";
@@ -62,6 +69,7 @@ sub set_svirt_domain_elements {
         type_string "wget $repo/boot/s390x/linux -O $zkvm_img_path/$name.kernel\n";
         assert_screen "kernel-saved";
     }
+    bmwqemu::fctwarn("pev: CALL: set_svirt_domain_elements END IF\n"); # FIXME: debug
     # after installation we need to redefine the domain, so just shutdown
     # on zdup and online migration we don't need to redefine in between
     # If boot from existing hdd image, we don't expect shutdown on reboot
@@ -74,9 +82,17 @@ sub run {
     my $svirt = select_console('svirt', await_console => 0);
 
     set_svirt_domain_elements $svirt;
+
+    bmwqemu::fctwarn("pev: zkvm_add_disk svirt\n"); # FIXME: debug
     zkvm_add_disk $svirt;
+
+    bmwqemu::fctwarn("pev: zkvm_add_pty svirt\n"); # FIXME: debug
     zkvm_add_pty $svirt;
+
+    bmwqemu::fctwarn("pev: zkvm_add_interface svirt\n"); # FIXME: debug
     zkvm_add_interface $svirt;
+
+    bmwqemu::fctwarn("pev: svirt->define_and_start\n"); # FIXME: debug
 
     $svirt->define_and_start;
 

@@ -165,6 +165,9 @@ sub install_from_repo {
 }
 
 sub run {
+    bmwqemu::fctwarn("pev: install_ltp: BOOT_HDD_IMAGE: '" . get_var('BOOT_HDD_IMAGE') . "'\n"); # FIXME: debug
+    warn("calling warn in install_ltp"); # FIXME: debug
+
     my $self     = shift;
     my $inst_ltp = get_var 'INSTALL_LTP';
     my $tag      = get_var('LTP_RUNTEST_TAG') || get_var('VERSION') . '-' . get_var('BUILD');
