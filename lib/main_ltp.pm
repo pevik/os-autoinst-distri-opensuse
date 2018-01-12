@@ -17,7 +17,7 @@
 package main_ltp;
 use base 'Exporter';
 use Exporter;
-use testapi qw(get_var);
+use testapi qw(get_var check_var);
 use autotest;
 use utils;
 use LTP::TestInfo qw(testinfo);
@@ -76,7 +76,7 @@ sub loadtest_from_runtest_file {
         environment => {},
         results     => []};
 
-    loadtest('boot_ltp', run_args => testinfo($test_result_export));
+    load_boot(run_args => testinfo($test_result_export));
     if (get_var('LTP_COMMAND_FILE') =~ m/ltp-aiodio.part[134]/) {
         loadtest 'create_junkfile_ltp';
     }
@@ -104,7 +104,20 @@ sub stress_snapshots {
     }
 }
 
+sub load_boot {
+    if (check_var("BACKEND", "svirt")) {
+        if (check_var("ARCH", "s390x")) {
+            loadtest "../installation/bootloader_zkvm";
+        }
+        else {
+            loadtest "../installation/bootloader_svirt";
+        }
+    }
+    loadtest('boot_ltp', @_);
+}
+
 sub maybe_load_kernel_tests {
+
     if (get_var('INSTALL_LTP')) {
         if (get_var('INSTALL_KOTD')) {
             loadtest 'install_kotd';
@@ -113,11 +126,11 @@ sub maybe_load_kernel_tests {
             loadtest 'update_kernel';
         }
         loadtest 'install_ltp';
-        loadtest 'boot_ltp';
+        load_boot();
         loadtest 'shutdown_ltp';
     }
     elsif (get_var('LTP_SETUP_NETWORKING')) {
-        loadtest 'boot_ltp';
+        load_boot();
         loadtest 'ltp_setup_networking';
         loadtest 'shutdown_ltp';
     }
@@ -131,7 +144,7 @@ sub maybe_load_kernel_tests {
         if (get_var('INSTALL_KOTD')) {
             loadtest 'install_kotd';
         }
-        loadtest 'boot_ltp';
+        load_boot();
         loadtest 'qa_test_klp';
     }
     elsif (get_var('VIRTIO_CONSOLE_TEST')) {
