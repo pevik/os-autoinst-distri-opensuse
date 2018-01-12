@@ -17,7 +17,7 @@
 package main_ltp;
 use base 'Exporter';
 use Exporter;
-use testapi qw(get_var);
+use testapi qw(get_var check_var);
 use autotest;
 use utils;
 use LTP::TestInfo qw(testinfo);
@@ -104,7 +104,22 @@ sub stress_snapshots {
     }
 }
 
+# TODO: remove duplicity by reusing this
+sub load_bootloader {
+    # my ($root) = shift;
+    my $root = '../';
+    if (check_var("BACKEND", "svirt")) {
+        if (check_var("ARCH", "s390x")) {
+            loadtest($root . 'installation/bootloader_zkvm');
+        }
+        else {
+            loadtest($root . 'installation/bootloader_svirt');
+        }
+    }
+}
+
 sub maybe_load_kernel_tests {
+    load_bootloader();
     if (get_var('INSTALL_LTP')) {
         if (get_var('INSTALL_KOTD')) {
             loadtest 'install_kotd';
