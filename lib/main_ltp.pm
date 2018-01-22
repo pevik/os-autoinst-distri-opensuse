@@ -26,9 +26,9 @@ use 5.018;
 
 our @EXPORT = qw(maybe_load_kernel_tests);
 
-sub loadtest {
+sub loadtest_kernel {
     my ($test, %args) = @_;
-    autotest::loadtest("tests/kernel/$test.pm", %args);
+    autotest::loadtest_kernel("tests/kernel/$test.pm", %args);
 }
 
 sub parse_openposix_runfile {
@@ -40,7 +40,7 @@ sub parse_openposix_runfile {
         if ($line =~ m/$cmd_pattern/ && !($line =~ m/$cmd_exclude/)) {
             my $test = {name => basename($line, '.run-test'), command => $line};
             my $tinfo = testinfo($test_result_export, test => $test);
-            loadtest('run_ltp', name => $test->{name}, run_args => $tinfo);
+            loadtest_kernel('run_ltp', name => $test->{name}, run_args => $tinfo);
         }
     }
 }
@@ -59,13 +59,13 @@ sub parse_runtest_file {
             my $test = {name => $1, command => $2};
             my $tinfo = testinfo($test_result_export, test => $test);
             if ($test->{name} =~ m/$cmd_pattern/ && !($test->{name} =~ m/$cmd_exclude/)) {
-                loadtest('run_ltp', name => $test->{name}, run_args => $tinfo);
+                loadtest_kernel('run_ltp', name => $test->{name}, run_args => $tinfo);
             }
         }
     }
 }
 
-sub loadtest_from_runtest_file {
+sub loadtest_kernel_from_runtest_file {
     my $name               = get_var('LTP_COMMAND_FILE');
     my $path               = get_var('ASSETDIR') . '/other';
     my $tag                = get_var('LTP_RUNTEST_TAG') || get_var('VERSION') . '-' . get_var('BUILD');
@@ -76,9 +76,9 @@ sub loadtest_from_runtest_file {
         environment => {},
         results     => []};
 
-    loadtest('boot_ltp', run_args => testinfo($test_result_export));
+    loadtest_kernel('boot_ltp', run_args => testinfo($test_result_export));
     if (get_var('LTP_COMMAND_FILE') =~ m/ltp-aiodio.part[134]/) {
-        loadtest 'create_junkfile_ltp';
+        loadtest_kernel('create_junkfile_ltp');
     }
 
     if ($name eq 'openposix') {
@@ -88,10 +88,10 @@ sub loadtest_from_runtest_file {
         parse_runtest_file($path . "/ltp-$name-" . $tag, $cmd_pattern, $cmd_exclude, $test_result_export);
     }
 
-    loadtest('shutdown_ltp', run_args => testinfo($test_result_export));
+    loadtest_kernel('shutdown_ltp', run_args => testinfo($test_result_export));
 }
 
-# Replace loadtest_from_runtest_file with this to stress test reverting to
+# Replace loadtest_kernel_from_runtest_file with this to stress test reverting to
 # snapshots
 sub stress_snapshots {
     my $count = 100;
@@ -99,43 +99,43 @@ sub stress_snapshots {
     for (my $i = 0; $i < $count / 2; $i++) {
         # This will always fail and revert to the previous milestone, which
         # will either be boot_ltp or write_random#$i
-        loadtest('run_ltp');
-        loadtest('write_random');
+        loadtest_kernel('run_ltp');
+        loadtest_kernel('write_random');
     }
 }
 
 sub maybe_load_kernel_tests {
     if (get_var('INSTALL_LTP')) {
         if (get_var('INSTALL_KOTD')) {
-            loadtest 'install_kotd';
+            loadtest_kernel('install_kotd');
         }
         if (get_var('FLAVOR', '') =~ /Incidents-Kernel$/) {
-            loadtest 'update_kernel';
+            loadtest_kernel('update_kernel');
         }
-        loadtest 'install_ltp';
-        loadtest 'boot_ltp';
-        loadtest 'shutdown_ltp';
+        loadtest_kernel('install_ltp');
+        loadtest_kernel('boot_ltp');
+        loadtest_kernel('shutdown_ltp');
     }
     elsif (get_var('LTP_SETUP_NETWORKING')) {
-        loadtest 'boot_ltp';
-        loadtest 'ltp_setup_networking';
-        loadtest 'shutdown_ltp';
+        loadtest_kernel('boot_ltp');
+        loadtest_kernel('ltp_setup_networking');
+        loadtest_kernel('shutdown_ltp');
     }
     elsif (get_var('LTP_COMMAND_FILE')) {
         if (get_var('INSTALL_KOTD')) {
-            loadtest 'install_kotd';
+            loadtest_kernel('install_kotd');
         }
-        loadtest_from_runtest_file();
+        loadtest_kernel_from_runtest_file();
     }
     elsif (get_var('QA_TEST_KLP_REPO')) {
         if (get_var('INSTALL_KOTD')) {
-            loadtest 'install_kotd';
+            loadtest_kernel('install_kotd');
         }
-        loadtest 'boot_ltp';
-        loadtest 'qa_test_klp';
+        loadtest_kernel('boot_ltp');
+        loadtest_kernel('qa_test_klp');
     }
     elsif (get_var('VIRTIO_CONSOLE_TEST')) {
-        loadtest 'virtio_console';
+        loadtest_kernel('virtio_console');
     }
     else {
         return 0;
