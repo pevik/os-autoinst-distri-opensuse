@@ -195,9 +195,7 @@ sub load_boot_tests {
         set_var("DELAYED_START", "1");
         loadtest "autoyast/pxe_boot";
     }
-    elsif (check_var('ARCH', 's390x')) {
-        loadtest "installation/bootloader_s390";
-    }
+    elsif (load_bootloader_s390x()) {}
     else {
         loadtest "installation/bootloader";
     }

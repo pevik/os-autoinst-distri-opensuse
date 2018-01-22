@@ -529,14 +529,7 @@ sub load_boot_tests {
     elsif (uses_qa_net_hardware()) {
         loadtest "boot/boot_from_pxe";
     }
-    elsif (check_var("ARCH", "s390x")) {
-        if (check_var('BACKEND', 's390x')) {
-            loadtest "installation/bootloader_s390";
-        }
-        else {
-            loadtest "installation/bootloader_zkvm";
-        }
-    }
+    elsif (load_bootloader_s390x()) {}
     elsif (get_var("PXEBOOT")) {
         set_var("DELAYED_START", "1");
         loadtest "autoyast/pxe_boot";
@@ -1117,14 +1110,7 @@ sub load_online_migration_tests {
 }
 
 sub load_patching_tests {
-    if (check_var("ARCH", "s390x")) {
-        if (check_var('BACKEND', 's390x')) {
-            loadtest "installation/bootloader_s390";
-        }
-        else {
-            loadtest "installation/bootloader_zkvm";
-        }
-    }
+    load_bootloader_s390x();
     # Switch to orginal system version for upgrade tests
     if (is_upgrade) {
         # Save HDDVERSION to ORIGIN_SYSTEM_VERSION
@@ -1148,7 +1134,7 @@ sub load_patching_tests {
         if (get_var('UPGRADE') || get_var('AUTOUPGRADE')) {
             loadtest "migration/version_switch_upgrade_target";
         }
-        loadtest 'installation/bootloader_zkvm' if get_var('S390_ZKVM');
+        load_bootloader_s390x();
     }
 }
 
@@ -1582,9 +1568,7 @@ else {
             loadtest "rt/boot_rt_kernel";
         }
         else {
-            if (get_var('S390_ZKVM')) {
-                loadtest 'installation/bootloader_zkvm';
-            }
+            load_bootloader_s390x();
             loadtest "boot/boot_to_desktop";
             if (get_var("ADDONS")) {
                 loadtest "installation/addon_products_yast2";
