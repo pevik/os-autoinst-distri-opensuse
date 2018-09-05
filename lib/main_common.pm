@@ -219,14 +219,19 @@ sub packagekit_available {
     return !check_var('FLAVOR', 'Rescue-CD');
 }
 
-sub is_kernel_test {
+sub is_ltp_test {
     return (get_var('INSTALL_LTP')
           || get_var('LTP_COMMAND_FILE')
-          || get_var('QA_TEST_KLP_REPO')
+          || get_var('NVMFTESTS'));
+}
+
+sub is_kernel_test {
+    return is_ltp_test() ||
+    (get_var('QA_TEST_KLP_REPO')
           || get_var('INSTALL_KOTD')
           || get_var('VIRTIO_CONSOLE_TEST')
-          || get_var('NVMFTESTS'))
-      || get_var('TRINITY');
+          || get_var('NVMFTESTS')
+          || get_var('TRINITY'));
 }
 
 # Isolate the loading of LTP tests because they often rely on newer features

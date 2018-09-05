@@ -686,7 +686,9 @@ if (is_kernel_test()) {
     push @$serial_failures, {type => $type, message => 'Kernel BUG found',               pattern => quotemeta 'BUG: failure at'};
     push @$serial_failures, {type => $type, message => 'Kernel Ooops found',             pattern => quotemeta '-[ cut here ]-'};
 }
-$testapi::distri->set_expected_serial_failures($serial_failures);
+if (!is_ltp_test()) {
+    $testapi::distri->set_expected_serial_failures($serial_failures);
+}
 
 if (is_jeos) {
     load_jeos_tests();

@@ -29,6 +29,9 @@ sub export_to_json {
 
 sub run {
     my ($self, $tinfo) = @_;
+    if (defined $serial_failures) {
+        $self->{serial_failures} = $serial_failures;
+    }
 
     if (defined $tinfo) {
         export_to_json($tinfo->test_result_export);
