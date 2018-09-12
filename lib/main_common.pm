@@ -240,9 +240,9 @@ sub get_ltp_tag {
     if (!defined $tag) {
         my $hdd = get_var('HDD_1');
         if (defined $hdd) {
-            $tag = basename($hdd) . '.txt'
+            $tag = basename($hdd) . '.txt';
         } else {
-            $tag = get_var('DISTRI') .'-' . get_var('VERSION') .'-' . get_var('ARCH') .'-' . get_var('BUILD') .'-' . get_var('FLAVOR') . '-' . get_var('LTP_RELEASE') . '@' . get_var('MACHINE');
+            $tag = get_var('DISTRI') . '-' . get_var('VERSION') . '-' . get_var('ARCH') . '-' . get_var('BUILD') . '-' . get_var('FLAVOR') . '-' . get_var('LTP_RELEASE') . '@' . get_var('MACHINE');
         }
     }
     return $tag;
