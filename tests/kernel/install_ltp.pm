@@ -255,7 +255,9 @@ sub run {
         die 'INSTALL_LTP must contain "git" or "repo"';
     }
 
-    $self->wait_boot;
+    if (!get_var('LTP_BAREMETAL')) {
+        $self->wait_boot;
+    }
 
     # poo#18980
     if (get_var('OFW') && check_var('VIRTIO_CONSOLE', 1)) {
@@ -272,6 +274,7 @@ sub run {
     upload_logs('/boot/config-$(uname -r)', failok => 1);
 
     add_we_repo_if_available;
+
     if (is_sle('12+') || is_opensuse) {
         add_custom_grub_entries;
     }
