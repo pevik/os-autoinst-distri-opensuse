@@ -25,7 +25,10 @@ use File::Basename 'basename';
 use main_common qw(load_bootloader_s390x boot_hdd_image);
 use 5.018;
 
-our @EXPORT = 'load_kernel_tests';
+our @EXPORT = qw(
+  load_kernel_tests
+  get_ltp_tag
+);
 
 sub loadtest {
     my ($test, %args) = @_;
@@ -71,10 +74,19 @@ sub parse_runtest_file {
     }
 }
 
+sub get_ltp_tag {
+    my $tag = get_var('LTP_RUNTEST_TAG');
+    if (!defined $tag) {
+        $tag = get_var('DISTRI') . '-' . get_var('VERSION') . '-' . get_var('ARCH') . '-' . get_var('BUILD') . '-' . get_var('FLAVOR') . '-' . get_var('LTP_RELEASE', 'master') . '@' . get_var('MACHINE');
+    }
+    return $tag . '.txt';
+}
+
+
 sub loadtest_from_runtest_file {
     my $name               = get_var('LTP_COMMAND_FILE');
     my $path               = get_var('ASSETDIR') . '/other';
-    my $tag                = (get_var('LTP_RUNTEST_TAG') || basename(get_var('HDD_1'))) . '.txt';
+    my $tag                = get_ltp_tag();
     my $cmd_pattern        = get_var('LTP_COMMAND_PATTERN') || '.*';
     my $cmd_exclude        = get_var('LTP_COMMAND_EXCLUDE') || '$^';
     my $test_result_export = {
