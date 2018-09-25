@@ -266,35 +266,28 @@ sub run {
     }
     select_virtio_console();
 
-    # check kGraft if KGRAFT=1
-    if (check_var("KGRAFT", '1')) {
-        assert_script_run("uname -v | grep -E '(/kGraft-|/lp-)'");
+    # grub
+    #my $grub_param = "console=hvc0 console=ttyS0,57600";
+    my $grub_param = "console=hvc0 printk.time=1";
+    my $cfg_new = '/boot/grub2/grub.cfg';
+    my $default = '/etc/default/grub';
+    my $cmd = "sed -i -e 's/\\(GRUB_CMDLINE_LINUX_DEFAULT=\"\\)/\\1$grub_param /' $default";
+    #my $grub_param = get_var('GRUB_PARAM');
+    my $j;
+    foreach my $i ($cfg_new, $default) { $j = "/tmp/" . basename($i); assert_script_run("cp -v $i $j"); upload_logs($j, failok => 1); }
+    assert_script_run($cmd);
+    assert_script_run("grub2-mkconfig -o $cfg_new");
+    foreach my $i ($cfg_new, $default) { $j = "/tmp/" . basename($i); assert_script_run("cp -v $i $j"); upload_logs($j, failok => 1); }
+=cut
+    foreach my $i ($cfg_new "/etc/default/grub") {
+        $j = "/tmp/" . basename($i);
+        print "i: $i\n";
+        assert_script_run("cp -v $i $j");
+        upload_logs($j, failok => 1);
     }
+=cut
 
     upload_logs('/boot/config-$(uname -r)', failok => 1);
-
-    add_we_repo_if_available;
-
-    if (is_sle('12+') || is_opensuse) {
-        add_custom_grub_entries;
-    }
-    install_runtime_dependencies;
-    install_runtime_dependencies_network;
-
-    if ($inst_ltp =~ /git/i) {
-        install_build_dependencies;
-        # bsc#1024050 - Watch for Zombies
-        script_run('(pidstat -p ALL 1 > /tmp/pidstat.txt &)');
-        install_from_git($tag);
-    }
-    else {
-        add_repos;
-        install_from_repo($tag);
-    }
-
-    setup_network();
-
-    upload_runtest_files('${LTPROOT:-/opt/ltp}/runtest', $tag);
 
     power_action('reboot', textmode => 1) if get_var('LTP_INSTALL_REBOOT');
 }
