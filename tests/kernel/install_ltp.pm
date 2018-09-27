@@ -269,6 +269,7 @@ sub run {
 
     if (script_output('cat /sys/module/printk/parameters/time') eq 'N') {
         script_run('echo 1 > /sys/module/printk/parameters/time');
+        script_run('cat /sys/module/printk/parameters/time');    # FIXME: debug Y
         $grub_param = 'printk.time=1';
     }
 
@@ -290,23 +291,6 @@ sub run {
     if (is_sle('12+') || is_opensuse) {
         add_custom_grub_entries;
     }
-    install_runtime_dependencies;
-    install_runtime_dependencies_network;
-
-    if ($inst_ltp =~ /git/i) {
-        install_build_dependencies;
-        # bsc#1024050 - Watch for Zombies
-        script_run('(pidstat -p ALL 1 > /tmp/pidstat.txt &)');
-        install_from_git($tag);
-    }
-    else {
-        add_repos;
-        install_from_repo($tag);
-    }
-
-    setup_network();
-
-    upload_runtest_files('${LTPROOT:-/opt/ltp}/runtest', $tag);
 
     power_action('reboot', textmode => 1) if get_var('LTP_INSTALL_REBOOT');
 }

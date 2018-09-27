@@ -37,6 +37,33 @@ sub run {
         script_run('dmesg --console-level 7');
     }
 
+    # DEBUG ONLY (DO NOT PUSH!)
+    script_run('echo "===== START ====="');
+    script_run('cat /proc/cmdline');
+
+    script_run('echo "pev: test before" >/dev/kmsg');
+    script_run('cat /sys/module/printk/parameters/time');
+    script_run('echo 1 > /sys/module/printk/parameters/time');
+    script_run('cat /sys/module/printk/parameters/time');
+    script_run('echo "pev: test after" >/dev/kmsg');
+
+    script_run('dmesg | grep -i tty');
+    script_run('cat /proc/sys/kernel/printk');
+    script_run('cat /proc/tty/driver/serial');
+    script_run('cat /etc/securetty');
+    script_run('cat /etc/ttytype');
+    script_run('ls -1 /sys/class/tty/');
+    script_run('grep GRUB_CMDLINE_LINUX /etc/default/grub');
+    script_run('grep -i console /etc/default/grub');
+    script_run('grep -e console= -e ttyS0 -e tty -r /etc');
+    script_run('cat /etc/default/grub');
+    script_run('systemctl |grep tty');
+    script_run('systemctl |grep getty');
+    script_run('dmesg > /tmp/dmesg.txt');
+    upload_logs('/tmp/dmesg.txt', failok => 1);
+    script_run('echo "===== END ====="');
+    # DEBUG ONLY (DO NOT PUSH!)
+
     assert_script_run('export LTPROOT=/opt/ltp; export LTP_COLORIZE_OUTPUT=n TMPDIR=/tmp PATH=$LTPROOT/testcases/bin:$PATH');
 
     # setup for LTP networking tests
