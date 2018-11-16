@@ -621,8 +621,11 @@ sub mellanox_config {
 }
 
 sub load_baremetal_tests {
-    load_boot_tests();
-    load_inst_tests();
+    #load_boot_tests();
+    #load_inst_tests();
+    #loadtest "installation/grub_test";
+    #loadtest "installation/first_boot";
+
     load_reboot_tests();
 }
 
