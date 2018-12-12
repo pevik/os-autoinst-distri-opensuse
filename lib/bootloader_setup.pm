@@ -169,21 +169,43 @@ sub boot_grub_item {
     $menu2 = 1 unless defined($menu2);
     die((caller(0))[3] . " expects integer arguments ($menu1, $menu2") unless ($menu1 =~ /^\d+\z/ && $menu2 =~ /^\d+\z/);
 
-    assert_screen "grub2";
+    # graphical grub is not on svirt for s390x
 
-    for my $i (1 .. ($menu1 - 1)) {
-        wait_screen_change { send_key 'down' };
+    if (get_var('S390_ZKVM')) {
+        bmwqemu::fctwarn("pev: S390_ZKVM\n"); # FIXME: debug
+        for my $i (1 .. ($menu1 - 1)) {
+            bmwqemu::fctwarn("pev: menu1: $menu1: before down\n"); # FIXME: debug
+            send_key 'down';
+            bmwqemu::fctwarn("pev: menu1: $menu1: after down\n"); # FIXME: debug
+        }
+        send_key 'ret';
+        bmwqemu::fctwarn("pev: ret\n"); # FIXME: debug
+
+        for my $i (1 .. ($menu2 - 1)) {
+            bmwqemu::fctwarn("pev: menu1: $menu2: before down\n"); # FIXME: debug
+            send_key 'down';
+            bmwqemu::fctwarn("pev: menu1: $menu2: after down\n"); # FIXME: debug
+        }
+        send_key 'ret';
+        bmwqemu::fctwarn("pev: ret\n"); # FIXME: debug
+    } else {
+        assert_screen "grub2";
+        for my $i (1 .. ($menu1 - 1)) {
+            wait_screen_change { send_key 'down' };
+        }
+        save_screenshot;
+        send_key 'ret';
+
+        for my $i (1 .. ($menu2 - 1)) {
+            wait_screen_change { send_key 'down' };
+        }
+        save_screenshot;
+        send_key 'ret';
     }
-    save_screenshot;
-    send_key 'ret';
 
-    for my $i (1 .. ($menu2 - 1)) {
-        wait_screen_change { send_key 'down' };
-    }
-    save_screenshot;
-    send_key 'ret';
-
+    bmwqemu::fctwarn("pev: before wait_boot\n"); # FIXME: debug
     $self->wait_boot(in_grub => 1);
+    bmwqemu::fctwarn("pev: after wait_boot\n"); # FIXME: debug
 }
 
 

@@ -23,9 +23,12 @@ sub run {
     my $is_network = $cmd_file =~ m/^\s*(net|net_stress)\./;
     my $is_ima     = $cmd_file =~ m/^ima$/i;
 
-    if ($is_ima) {
+    bmwqemu::fctwarn("pev: is ima: $is_ima\n"); # FIXME: debug
+    if ($is_ima && !get_var('S390_ZKVM')) {
         # boot kernel with IMA parameters
+        bmwqemu::fctwarn("pev: before boot_grub_item\n"); # FIXME: debug
         $self->boot_grub_item();
+        bmwqemu::fctwarn("pev: before after\n"); # FIXME: debug
     }
     else {
         # during install_ltp, the second boot may take longer than usual

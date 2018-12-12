@@ -8,6 +8,7 @@ use utils;
 use lockapi 'mutex_wait';
 use serial_terminal 'get_login_message';
 use version_utils qw(is_sle is_leap is_upgrade is_aarch64_uefi_boot_hdd);
+use bootloader_setup 'boot_grub_item';
 use isotovideo;
 use IO::Socket::INET;
 
@@ -332,7 +333,9 @@ sub wait_boot {
     # Reset the consoles after the reboot: there is no user logged in anywhere
     reset_consoles;
     # reconnect s390
+    bmwqemu::fctwarn("pev: after reset_consoles\n"); # FIXME: debug
     if (check_var('ARCH', 's390x')) {
+        bmwqemu::fctwarn("pev: s390x\n"); # FIXME: debug
         my $login_ready = get_login_message();
         if (check_var('BACKEND', 's390x')) {
             my $console = console('x3270');
@@ -351,8 +354,54 @@ sub wait_boot {
             my $worker_hostname = get_required_var('WORKER_HOSTNAME');
             my $virsh_guest     = get_required_var('VIRSH_GUEST');
             workaround_type_encrypted_passphrase if get_var('S390_ZKVM');
+            bmwqemu::fctwarn("pev: svirt before wait_serial('GNU GRUB')\n"); # FIXME: debug
             wait_serial('GNU GRUB') || diag 'Could not find GRUB screen, continuing nevertheless, trying to boot';
+            bmwqemu::fctwarn("pev: svirt before boot_grub_item\n"); # FIXME: debug
+
+            my $dev = get_required_var('SERIALDEV');
+            bmwqemu::fctwarn("pev: dev: $dev, serialdev: $serialdev\n"); # FIXME: debug
+            #bmwqemu::fctwarn("pev: testing grub edit: e |tee /dev/" . $dev . "\n"); # FIXME: debug
+            #type_string "e\n |tee /dev/" . $dev . "\n";
+
+            my $sleep = 15;
+            bmwqemu::fctwarn("pev: SLEEP: $sleep\n"); # FIXME: debug
+            sleep $sleep;
+
+            #boot_grub_item();
+            my $menu1 = 3;
+            my $menu2 = 1;
+            bmwqemu::fctwarn("pev: start selecting menu\n"); # FIXME: debug
+            for my $i (1 .. ($menu1 - 1)) {
+                bmwqemu::fctwarn("pev: menu1: $menu1: before down\n"); # FIXME: debug
+                #send_key 'down';
+                type_string "# $i";
+                #type_string "e | tee /dev/$serialdev\n";
+                #type_string "echo -en '\\033[B' > \$pty\n"; # n-times key down
+                type_string "printf '\\033[B' > /dev/$serialdev"; # n-times key down
+                bmwqemu::fctwarn("pev: menu1: $menu1: after down\n"); # FIXME: debug
+            }
+            type_string "# enter";
+            type_string "printf '\\n' > /dev/$serialdev"; # n-times key down
+            #send_key 'ret';
+            bmwqemu::fctwarn("pev: ret\n"); # FIXME: debug
+
+            for my $i (1 .. ($menu2 - 1)) {
+                bmwqemu::fctwarn("pev: menu1: $menu2: before down\n"); # FIXME: debug
+                type_string "printf '\\033[B' > /dev/$serialdev"; # n-times key down
+                #send_key 'down';
+                bmwqemu::fctwarn("pev: menu1: $menu2: after down\n"); # FIXME: debug
+            }
+            #send_key 'ret';
+            type_string "# enter 2";
+            type_string "printf '\\n' > /dev/$serialdev"; # n-times key down
+            bmwqemu::fctwarn("pev: END OF GRUB; before svirt\n"); # FIXME: debug
+
+            bmwqemu::fctwarn("pev: SECOND SLEEP: $sleep\n"); # FIXME: debug
+            sleep $sleep;
+
             select_console('svirt');
+            bmwqemu::fctwarn("pev: svirt after\n"); # FIXME: debug
+
             save_svirt_pty;
             type_line_svirt '', expect => $login_ready, timeout => $ready_time + 100, fail_message => 'Could not find login prompt';
             type_line_svirt "root", expect => 'Password';

@@ -43,6 +43,8 @@ sub set_svirt_domain_elements {
         $cmdline .= ' ' . get_var("EXTRABOOTPARAMS") if get_var("EXTRABOOTPARAMS");
         $cmdline .= specific_bootmenu_params;
         $cmdline .= registration_bootloader_cmdline if check_var('SCC_REGISTER', 'installation');
+        bmwqemu::fctwarn("pev: EXTRABOOTPARAMS: '". get_var("EXTRABOOTPARAMS") ."'\n"); # FIXME: debug
+        bmwqemu::fctwarn("pev: cmdline: '$cmdline'\n"); # FIXME: debug
 
         $svirt->change_domain_element(os => initrd  => "$zkvm_img_path/$name.initrd");
         $svirt->change_domain_element(os => kernel  => "$zkvm_img_path/$name.kernel");
