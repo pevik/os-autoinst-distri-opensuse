@@ -169,7 +169,8 @@ sub boot_grub_item {
     $menu2 = 1 unless defined($menu2);
     die((caller(0))[3] . " expects integer arguments ($menu1, $menu2") unless ($menu1 =~ /^\d+\z/ && $menu2 =~ /^\d+\z/);
 
-    assert_screen "grub2";
+    # graphical grub is not on svirt for s390x
+    assert_screen "grub2" unless (get_var('S390_ZKVM'));
 
     for my $i (1 .. ($menu1 - 1)) {
         wait_screen_change { send_key 'down' };
