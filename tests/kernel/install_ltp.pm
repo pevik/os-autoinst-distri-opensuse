@@ -257,12 +257,15 @@ sub run {
     my $tag      = get_ltp_tag();
     my $grub_param;
 
+    bmwqemu::fctwarn("pev: START\n"); # FIXME: debug
     if ($inst_ltp !~ /(repo|git)/i) {
         die 'INSTALL_LTP must contain "git" or "repo"';
     }
 
     if (!get_var('LTP_BAREMETAL') && !is_jeos) {
+        bmwqemu::fctwarn("pev: before wait_boot\n"); # FIXME: debug
         $self->wait_boot;
+        bmwqemu::fctwarn("pev: after wait_boot\n"); # FIXME: debug
     }
 
     # poo#18980
