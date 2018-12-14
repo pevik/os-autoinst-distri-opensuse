@@ -586,6 +586,10 @@ sub select_serial_terminal {
         }
     } elsif (get_var('S390_ZKVM')) {
         $console = $root ? 'root-console' : 'user-console';
+        bmwqemu::fctwarn("pev: would use console: '$console'\n"); # FIXME: debug
+        #$console = 'ssh-virtsh-serial'; # sut-serial
+        $console = 'sut-serial';
+        bmwqemu::fctwarn("pev: would new console: '$console'\n"); # FIXME: debug
     } elsif ($backend eq 'svirt') {
         $console = $root ? 'root-console' : 'user-console';
     } elsif ($backend =~ /^(ikvm|ipmi|spvm)$/) {
