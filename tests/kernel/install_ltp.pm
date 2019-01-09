@@ -292,7 +292,7 @@ sub run {
         add_grub_cmdline_settings($grub_param);
     }
 
-    if (is_sle('12+') || is_opensuse) {
+    if ((is_sle('12+') || is_opensuse) && !is_jeos) {
         add_custom_grub_entries;
     }
     install_runtime_dependencies;
