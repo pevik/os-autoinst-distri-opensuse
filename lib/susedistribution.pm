@@ -394,6 +394,11 @@ sub init_consoles {
         $self->add_console('x11',            'tty-console', {tty => get_x11_console_tty});
     }
 
+    if (get_var('S390_ZKVM')) {
+        bmwqemu::fctwarn("pev: add sut-serial'\n"); # FIXME: debug
+        $self->add_console('sut-serial', 'ssh-virtsh-serial', {});
+    }
+
     if (check_var('VIRSH_VMM_FAMILY', 'hyperv')) {
         $self->add_console(
             'hyperv-intermediary',
@@ -626,6 +631,7 @@ sub activate_console {
 
     diag "activate_console, console: $console, type: $type";
     if ($type eq 'console') {
+        bmwqemu::fctwarn("pev: ssh console"); # FIXME: debug
         # different handling for ssh consoles on s390x zVM
         if (get_var('BACKEND', '') =~ /ipmi|s390x|spvm/ || get_var('S390_ZKVM')) {
             diag 'backend ipmi || spvm || s390x || zkvm';
@@ -634,6 +640,7 @@ sub activate_console {
             ensure_user($user);
         }
         else {
+            bmwqemu::fctwarn("pev: NOT ssh console (push 'text-logged-in-root')"); # FIXME: debug
             my $nr = console_nr($console);
             $self->hyperv_console_switch($console, $nr);
             my @tags = ("tty$nr-selected", "text-logged-in-$user");
@@ -653,9 +660,14 @@ sub activate_console {
                 ensure_user($user);
             }
         }
+        bmwqemu::fctwarn("pev: assert_screen 'text-logged-in-$user'"); # FIXME: debug
         assert_screen "text-logged-in-$user";
         $self->set_standard_prompt($user, skip_set_standard_prompt => $args{skip_set_standard_prompt});
         assert_screen $console;
+    }
+    elsif ($type eq 'sut-serial') {
+        bmwqemu::fctwarn("pev: sut-serial TRY 'serial_terminal::login($user, $self->{serial_term_prompt}'\n"); # FIXME: debug
+        serial_terminal::login($user, $self->{serial_term_prompt});
     }
     elsif ($type eq 'virtio-terminal') {
         serial_terminal::login($user, $self->{serial_term_prompt});

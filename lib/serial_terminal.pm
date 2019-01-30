@@ -79,10 +79,14 @@ sub login {
     # newline nudges the guest to display the login prompt, if this behaviour
     # changes then remove it
     type_string("\n");
+    bmwqemu::fctwarn("pev: wait for /login:\n"); # FIXME: debug
     wait_serial(qr/login:\s*$/i);
+    bmwqemu::fctwarn("pev: typing '$user'\n"); # FIXME: debug
     type_string("$user\n");
     wait_serial(qr/$pass_prompt\s*$/i);
+    bmwqemu::fctwarn("pev: after password prompt: '$pass_prompt'\n"); # FIXME: debug
     type_password;
+    bmwqemu::fctwarn("pev: sending enter after password\n"); # FIXME: debug
     type_string("\n");
     wait_serial(qr/$escseq* \w+:~\s\# $escseq* \s*$/x);
     type_string(qq/PS1="$serial_term_prompt"\n/);
