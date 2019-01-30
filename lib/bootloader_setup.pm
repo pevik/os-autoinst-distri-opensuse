@@ -781,6 +781,7 @@ sub zkvm_add_disk {
         my $basename = basename($hdd);
         my $basedir  = svirt_host_basedir();
         my $hdd_dir  = "$basedir/openqa/share/factory/hdd";
+        diag("pev: hostname (svirt): " . $svirt->get_cmd_output("hostname")); # FIXME: debug
         my $hdd_path = $svirt->get_cmd_output("find $hdd_dir -name $basename | head -n1 | tr -d '\n'");
         die "Unable to find image $basename in $hdd_dir" unless $hdd_path;
         diag("HDD path found: $hdd_path");
