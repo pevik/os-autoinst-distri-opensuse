@@ -264,7 +264,7 @@ sub run {
         die 'INSTALL_LTP must contain "git" or "repo"';
     }
 
-    if (!get_var('LTP_BAREMETAL') && !is_jeos) {
+    if (!get_var('LTP_BAREMETAL') && !is_jeos && !check_var('BACKEND', 'S390_ZKVM')) {
         $self->wait_boot;
     }
 

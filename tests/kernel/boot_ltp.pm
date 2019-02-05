@@ -28,7 +28,7 @@ sub run {
         # boot kernel with IMA parameters
         $self->boot_grub_item();
     }
-    else {
+    elsif (!check_var('BACKEND', 'S390_ZKVM')) {
         # during install_ltp, the second boot may take longer than usual
         $self->wait_boot(ready_time => 500);
     }
