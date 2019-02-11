@@ -620,7 +620,7 @@ sub select_serial_terminal {
             $console = $root ? 'root-virtio-terminal' : 'virtio-terminal';
         }
     } elsif (get_var('S390_ZKVM')) {
-        $console = $root ? 'root-console' : 'user-console';
+        $console = 'sut-serial';
     } elsif ($backend eq 'svirt') {
         $console = $root ? 'root-console' : 'user-console';
     } elsif ($backend =~ /^(ikvm|ipmi|spvm)$/) {

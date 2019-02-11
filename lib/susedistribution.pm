@@ -394,6 +394,10 @@ sub init_consoles {
         $self->add_console('x11',            'tty-console', {tty => get_x11_console_tty});
     }
 
+    if (get_var('S390_ZKVM')) {
+        $self->add_console('sut-serial', 'ssh-virtsh-serial', {});
+    }
+
     if (check_var('VIRSH_VMM_FAMILY', 'hyperv')) {
         $self->add_console(
             'hyperv-intermediary',
