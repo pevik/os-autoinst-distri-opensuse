@@ -265,7 +265,9 @@ sub run {
     }
 
     if (!get_var('LTP_BAREMETAL') && !is_jeos) {
+        bmwqemu::fctwarn("pev: before wait_boot\n"); # FIXME: debug
         $self->wait_boot;
+        bmwqemu::fctwarn("pev: after wait_boot\n"); # FIXME: debug
     }
 
     # poo#18980
@@ -278,7 +280,9 @@ sub run {
         use_ssh_serial_console;
     }
     else {
+        bmwqemu::fctwarn("pev: before select_serial_terminal\n"); # FIXME: debug
         $self->select_serial_terminal;
+        bmwqemu::fctwarn("pev: after select_serial_terminal\n"); # FIXME: debug
     }
 
     if (script_output('cat /sys/module/printk/parameters/time') eq 'N') {

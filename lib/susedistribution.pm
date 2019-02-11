@@ -657,6 +657,10 @@ sub activate_console {
         $self->set_standard_prompt($user, skip_set_standard_prompt => $args{skip_set_standard_prompt});
         assert_screen $console;
     }
+    elsif ($type eq 'sut-serial') {
+        bmwqemu::fctwarn("pev: sut-serial TRY 'serial_terminal::login($user, $self->{serial_term_prompt}'\n"); # FIXME: debug
+        serial_terminal::login($user, $self->{serial_term_prompt});
+    }
     elsif ($type eq 'virtio-terminal') {
         serial_terminal::login($user, $self->{serial_term_prompt});
     }
