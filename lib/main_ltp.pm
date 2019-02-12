@@ -112,7 +112,9 @@ sub stress_snapshots {
 sub load_kernel_tests {
     load_bootloader_s390x();
 
-    if (get_var('INSTALL_LTP')) {
+    if (get_var('SVIRT_TEST')) {
+        loadtest 'svirt_test';
+    } elsif (get_var('INSTALL_LTP')) {
         if (get_var('INSTALL_KOTD')) {
             loadtest 'install_kotd';
         }
