@@ -804,8 +804,10 @@ sub zkvm_add_disk {
 
 sub zkvm_add_pty {
     my ($svirt) = shift;
-    # need that for s390
+    # serial console used for the serial log
     $svirt->add_pty({pty_dev => 'console', pty_dev_type => 'pty', target_type => 'sclp', target_port => '0'});
+    # sut-serial (emulation of virtio console)
+    $svirt->add_serial_console({pty_dev => 'console', target_port => '1'});
 }
 
 sub zkvm_add_interface {

@@ -378,6 +378,8 @@ sub init_consoles {
                 password => $testapi::password
             });
         set_var('SVIRT_VNC_CONSOLE', 'sut');
+    } else {
+        $self->add_console('root-sut-serial', 'ssh-virtsh-serial', {});
     }
 
     if (get_var('BACKEND', '') =~ /qemu|ikvm|generalhw/
@@ -565,7 +567,7 @@ Return console VT number with regards to it's name.
 =cut
 sub console_nr {
     my ($console) = @_;
-    $console =~ m/^(\w+)-(console|virtio-terminal|ssh|shell)/;
+    $console =~ m/^(\w+)-(console|virtio-terminal|sut-serial|ssh|shell)/;
     my ($name) = ($1) || return;
     my $nr = 4;
     $nr = get_root_console_tty if ($name eq 'root');
@@ -613,7 +615,7 @@ sub activate_console {
         return;
     }
 
-    $console =~ m/^(\w+)-(console|virtio-terminal|ssh|shell)/;
+    $console =~ m/^(\w+)-(console|virtio-terminal|sut-serial|ssh|shell)/;
     my ($name, $user, $type) = ($1, $1, $2);
     $name = $user //= '';
     $type //= '';
@@ -657,7 +659,7 @@ sub activate_console {
         $self->set_standard_prompt($user, skip_set_standard_prompt => $args{skip_set_standard_prompt});
         assert_screen $console;
     }
-    elsif ($type eq 'virtio-terminal') {
+    elsif ($type eq 'virtio-terminal' || $type eq 'sut-serial') {
         serial_terminal::login($user, $self->{serial_term_prompt});
     }
     elsif ($console eq 'novalink-ssh') {
