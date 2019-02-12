@@ -394,6 +394,11 @@ sub init_consoles {
         $self->add_console('x11',            'tty-console', {tty => get_x11_console_tty});
     }
 
+    if (check_var('BACKEND', 'svirt')) {
+        bmwqemu::fctwarn("pev: add sut-serial'\n"); # FIXME: debug
+        $self->add_console('root-sut-serial', 'ssh-virtsh-serial', {});
+    }
+
     if (check_var('VIRSH_VMM_FAMILY', 'hyperv')) {
         $self->add_console(
             'hyperv-intermediary',
@@ -657,7 +662,7 @@ sub activate_console {
         $self->set_standard_prompt($user, skip_set_standard_prompt => $args{skip_set_standard_prompt});
         assert_screen $console;
     }
-    elsif ($type eq 'virtio-terminal') {
+    elsif ($type eq 'virtio-terminal' || $type eq 'sut-serial') {
         serial_terminal::login($user, $self->{serial_term_prompt});
     }
     elsif ($console eq 'novalink-ssh') {
