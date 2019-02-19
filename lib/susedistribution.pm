@@ -379,6 +379,7 @@ sub init_consoles {
             });
         set_var('SVIRT_VNC_CONSOLE', 'sut');
     } else {
+        bmwqemu::fctwarn("pev: add sut-serial'\n"); # FIXME: debug
         $self->add_console('root-sut-serial', 'ssh-virtsh-serial', {});
     }
 
@@ -660,6 +661,7 @@ sub activate_console {
         assert_screen $console;
     }
     elsif ($type eq 'virtio-terminal' || $type eq 'sut-serial') {
+        bmwqemu::fctwarn("pev: login($user, $self->{serial_term_prompt})\n"); # FIXME: debug
         serial_terminal::login($user, $self->{serial_term_prompt});
     }
     elsif ($console eq 'novalink-ssh') {

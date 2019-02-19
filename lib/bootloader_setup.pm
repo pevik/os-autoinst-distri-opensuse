@@ -807,6 +807,7 @@ sub zkvm_add_pty {
     # serial console used for the serial log
     $svirt->add_pty({pty_dev => 'console', pty_dev_type => 'pty', target_type => 'sclp', target_port => '0'});
     # sut-serial (emulation of virtio console)
+    bmwqemu::fctwarn("pev: Adding second serial port :)\n"); # FIXME: debug
     $svirt->add_serial_console({pty_dev => 'console', target_port => '1'});
 }
 
