@@ -762,10 +762,14 @@ sub select_serial_terminal {
         } else {
             $console = $root ? 'root-virtio-terminal' : 'virtio-terminal';
         }
-    } elsif (get_var('S390_ZKVM')) {
-        $console = $root ? 'root-console' : 'user-console';
-    } elsif ($backend eq 'svirt') {
-        $console = $root ? 'root-console' : 'user-console';
+    } elsif ($backend eq 'svirt' || get_var('S390_ZKVM')) {
+        if (check_var('SERIAL_CONSOLE', 0)) {
+            $console = $root ? 'root-console' : 'user-console';
+        } else {
+            bmwqemu::diag("serial console for svirt does need to use select_console()");
+            return;
+        }
+
     } elsif ($backend =~ /^(ikvm|ipmi|spvm)$/) {
         $console = 'root-ssh';
     }
