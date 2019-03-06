@@ -261,7 +261,9 @@ sub power_action {
         select_console('svirt') if is_vmware && $action eq 'reboot';
         reset_consoles;
         if (check_var('BACKEND', 'svirt') && $action ne 'poweroff') {
+            bmwqemu::diag "pev: power_action_utils.pm call sshVirtsh: backend start_serial_grab()"; # FIXME: debug
             console('svirt')->start_serial_grab;
+            bmwqemu::diag "pev: AFTER power_action_utils.pm call sshVirtsh: backend start_serial_grab()"; # FIXME: debug
         }
         # When 'sut' is ready, select it
         if (is_vmware && $action eq 'reboot') {
@@ -291,9 +293,11 @@ sub assert_shutdown_and_restore_system {
             $svirt->change_domain_element(os => kernel  => undef);
             $svirt->change_domain_element(os => cmdline => undef);
             $svirt->change_domain_element(on_reboot => undef);
+            bmwqemu::diag "pev: assert_shutdown_and_restore_system: BEFORE define_and_start"; # FIXME: debug
             $svirt->define_and_start;
         }
         else {
+            bmwqemu::diag "pev: assert_shutdown_and_restore_system: BEFORE define_and_start (else)"; # FIXME: debug
             $svirt->define_and_start;
             select_console($vnc_console);
         }

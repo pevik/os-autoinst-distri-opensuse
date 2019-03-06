@@ -71,7 +71,10 @@ sub run {
     zkvm_add_pty $svirt;
     zkvm_add_interface $svirt;
 
+    bmwqemu::diag("pev: bootloader_zkvm: BEFORE define_and_start"); # FIXME: debug
     $svirt->define_and_start;
+    bmwqemu::diag("pev: bootloader_zkvm: ref(\$svirt->{ssh}): '" . ref($svirt->{ssh}) . "'"); # FIXME: debug
+    bmwqemu::diag("pev: bootloader_zkvm: ref(\$svirt->{ssh2}): '" . ref($svirt->{ssh2}) . "'"); # FIXME: debug
 
     if (!get_var("BOOT_HDD_IMAGE") or (get_var('PATCHED_SYSTEM') and !get_var('ZDUP'))) {
         if (check_var("VIDEOMODE", "text")) {

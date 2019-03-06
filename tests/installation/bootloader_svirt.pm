@@ -233,6 +233,7 @@ sub run {
 
     $svirt->add_interface(\%ifacecfg);
 
+    bmwqemu::diag "pev: bootloader_svirt: BEFORE define_and_start"; # FIXME: debug
     $svirt->define_and_start;
 
     # This sets kernel argument so needle-matching works on Xen PV. It's being
