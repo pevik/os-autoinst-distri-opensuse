@@ -9,6 +9,10 @@ sub run {
 
     $self->wait_boot;
 
+    my $cmd = "hostname";
+    $out = script_output($cmd);
+    bmwqemu::diag("cmd: '$cmd', output: '$out'");
+=cut
     bmwqemu::fctwarn("Using select_serial_terminal (backend: '" .
         get_var('BACKEND') . "')");
     $self->select_serial_terminal;
@@ -31,6 +35,7 @@ sub run {
     } else {
         bmwqemu::fctwarn("kernel: not found");
     }
+=cut
 }
 1;
 
