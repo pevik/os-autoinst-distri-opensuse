@@ -19,6 +19,18 @@ sub run {
         $out = script_output($cmd);
         bmwqemu::diag("cmd: '$cmd', output: '$out'");
     }
+
+    bmwqemu::fctwarn("ver_linux");
+    script_run('wget -c https://github.com/linux-test-project/ltp/raw/master/ver_linux; chmod 755 ver_linux');
+    my $ver_linux_log = '/tmp/ver_linux_before.txt';
+    script_run("./ver_linux > $ver_linux_log 2>&1");
+    upload_logs($ver_linux_log, failok => 1);
+    my $ver_linux_out = script_output("cat $ver_linux_log");
+    if ($ver_linux_out =~ qr'^Linux\s+(.*?)\s*$'m) {
+        bmwqemu::fctwarn("kernel: '$1'");
+    } else {
+        bmwqemu::fctwarn("kernel: not found");
+    }
 }
 1;
 
