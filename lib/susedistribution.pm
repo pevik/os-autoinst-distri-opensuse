@@ -381,7 +381,9 @@ sub init_consoles {
         set_var('SVIRT_VNC_CONSOLE', 'sut');
     } else {
         # sut-serial (serial terminal: emulation of QEMU's virtio console for svirt)
+        bmwqemu::fctwarn("pev: === ADDING PROBLEMATIC add_console root-sut-serial"); # FIXME: debug
         $self->add_console('root-sut-serial', 'ssh-virtsh-serial', {pty_dev => 'console', target_port => '1'});
+        #bmwqemu::fctwarn("pev: ====== !!! NOT ADDING PROBLEMATIC add_console root-sut-serial"); # FIXME: debug
     }
 
     if (get_var('BACKEND', '') =~ /qemu|ikvm|generalhw/
@@ -591,6 +593,7 @@ point, you should set it on your own.
 Option C<ensure_tty_selected> ensures TTY is selected.
 =cut
 sub activate_console {
+    bmwqemu::fctwarn("=== pev: susedistribution: activate_console"); # FIXME: debug
     my ($self, $console, %args) = @_;
 
     if ($console eq 'install-shell') {
@@ -662,6 +665,7 @@ sub activate_console {
         assert_screen $console;
     }
     elsif ($type =~ /virtio-terminal|sut-serial/) {
+        bmwqemu::fctwarn("== pev: $type: LOGIN ($user, $self->{serial_term_prompt})"); # FIXME: debug
         serial_terminal::login($user, $self->{serial_term_prompt});
     }
     elsif ($console eq 'novalink-ssh') {
@@ -674,6 +678,7 @@ sub activate_console {
     }
     elsif ($type eq 'ssh') {
         $user ||= 'root';
+        bmwqemu::fctwarn("== pev: SSH set_standard_prompt($user, $args{skip_set_standard_prompt})"); # FIXME: debug
         handle_password_prompt;
         ensure_user($user);
         assert_screen(["text-logged-in-$user", "text-login"], 60);

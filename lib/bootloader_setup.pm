@@ -811,6 +811,10 @@ sub zkvm_add_pty {
     my ($svirt) = shift;
     # serial console used for the serial log
     $svirt->add_pty({pty_dev => 'console', pty_dev_type => 'pty', target_type => 'sclp', target_port => '0'});
+    # sut-serial (serial terminal: emulation of QEMU's virtio console for svirt)
+    #bmwqemu::fctwarn("pev: I would add problematic add_serial_console which calls sshVirtsh->add_pty()"); # FIXME: debug
+    bmwqemu::fctwarn("==== pev: Adding needed but problematic add_serial_console which calls sshVirtsh->add_pty()"); # FIXME: debug
+    $svirt->add_serial_console({pty_dev => 'console', target_port => '1'});
 }
 
 sub zkvm_add_interface {

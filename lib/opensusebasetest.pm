@@ -766,7 +766,11 @@ sub select_serial_terminal {
         if (check_var('SERIAL_CONSOLE', 0)) {
             $console = $root ? 'root-console' : 'user-console';
         } else {
+            bmwqemu::diag("pev: !!! serial console for svirt is problematic !!!");
             $console = $root ? 'root-sut-serial' : 'sut-serial';
+            #bmwqemu::diag("serial console for svirt does need to use select_console()");
+            #return;
+
         }
 
     } elsif ($backend =~ /^(ikvm|ipmi|spvm)$/) {
@@ -774,6 +778,7 @@ sub select_serial_terminal {
     }
 
     die "No support for backend '$backend', add it" if ($console eq '');
+    bmwqemu::fctwarn("USING CONSOLE: '$console'"); # FIXME: debug
     select_console($console);
 }
 
