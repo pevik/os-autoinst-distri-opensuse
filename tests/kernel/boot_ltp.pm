@@ -40,6 +40,14 @@ sub run {
         $self->select_serial_terminal;
     }
 
+    # FIXME: debug
+    script_run("rpm -qa");
+    foreach my $i ("kernel-default", "kernel-default-extra") {
+        bmwqemu::fctwarn("pkg: '$i'");
+        script_run("rpm -ql $i");
+    }
+    # FIXME: debug
+
     assert_script_run('export LTPROOT=/opt/ltp; export LTP_COLORIZE_OUTPUT=n TMPDIR=/tmp PATH=$LTPROOT/testcases/bin:$PATH');
 
     # setup for LTP networking tests
