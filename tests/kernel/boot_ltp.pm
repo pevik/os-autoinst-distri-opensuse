@@ -17,6 +17,8 @@ use testapi;
 use bootloader_setup 'boot_grub_item';
 use Utils::Backends 'use_ssh_serial_console';
 
+use LWP::Simple 'head';
+
 sub run {
     my ($self, $tinfo) = @_;
     my $ltp_env    = get_var('LTP_ENV');
@@ -39,6 +41,23 @@ sub run {
     else {
         $self->select_serial_terminal;
     }
+
+    # FIXME: debug
+    my $module_repo_name = get_var('REPO_SLE_PRODUCT_WE');
+    $module_repo_name = get_var('REPO_SLE_WE') if (!$module_repo_name);
+    bmwqemu::fctwarn("module_repo_name: '$module_repo_name'"); # FIXME: debug
+    if ($module_repo_name) {
+        my $repo_url = "$utils::OPENQA_FTP_URL/$module_repo_name";
+        bmwqemu::fctwarn("url: '$repo_url'"); # FIXME: debug
+        if (head($repo_url)) {
+            bmwqemu::fctwarn("ADD REPO :)"); # FIXME: debug
+            zypper_ar($repo_url, 'trinity');
+        }
+        else {
+            bmwqemu::fctwarn("NO REPO!"); # FIXME: debug
+        }
+    }
+    # FIXME: debug
 
     # FIXME: debug
     script_run("rpm -qa");
