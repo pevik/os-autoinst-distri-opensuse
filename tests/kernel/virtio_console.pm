@@ -30,6 +30,22 @@ sub run {
     $self->wait_boot;
 
     $self->select_serial_terminal;
+
+    my $file    = '/tmp/svirt_test.log';
+    my $content = <<EOF;
+# ltp specific setup
+pts/1
+pts/2
+pts/3
+pts/4
+pts/5
+pts/6
+pts/7
+pts/8
+pts/9
+EOF
+    assert_script_run("echo \"$content\" >> $file");
+
     for my $i (0 .. $m) {
         script_run("echo '#$i'");
         script_output(sprintf($multiline_script, $n));
