@@ -295,6 +295,39 @@ sub run {
         assert_script_run(q(export RHOST='127.0.0.1'));
     }
 
+    bmwqemu::fctwarn("pev: START debug"); # FIXME: debug
+    # try to disable firewall services
+    for my $service (qw(firewalld SuSEfirewall2)) {
+        script_run("systemctl stop $service; systemctl disable $service");
+    }
+    # disable IPv4 and IPv6 also directly via iptables
+    my $disable_iptables_script = << 'EOF';
+iptables -P INPUT ACCEPT;
+iptables -P OUTPUT ACCEPT;
+iptables -P FORWARD ACCEPT;
+iptables -t nat -F;
+iptables -t mangle -F;
+iptables -F;
+iptables -X;
+
+ip6tables -P INPUT ACCEPT;
+ip6tables -P OUTPUT ACCEPT;
+ip6tables -P FORWARD ACCEPT;
+ip6tables -t nat -F;
+ip6tables -t mangle -F;
+ip6tables -F;
+ip6tables -X;
+EOF
+    script_output($disable_iptables_script);
+
+    # display resulting iptables
+    script_run('iptables -L');
+    script_run('iptables -S');
+    script_run('ip6tables -L');
+    script_run('ip6tables -S');
+    script_output("ps aux|grep firewall");
+    bmwqemu::fctwarn("pev: END debug"); # FIXME: debug
+
     if (is_serial_terminal) {
         script_run($klog_stamp);
         wait_serial(serial_term_prompt(), undef, 0, no_regex => 1);
