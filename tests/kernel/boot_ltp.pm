@@ -129,11 +129,20 @@ EOF
 
         script_run('env');
 
-        # Disable IPv4 and IPv6 iptables.
-        # Disabling IPv4 is needed for iptables tests (net.tcp_cmds).
-        # Disabling IPv6 is needed for ICMPv6 tests (net.ipv6).
+        # Some tests does can be blocked by iptables (e.g. iptables test in
+        # net.tcp_cmds, ICMPv6 tests from net.ipv6). Try disable common
+        # firewall services and than disable iptables also directly with
+        # ip{,6}tables (just in case something else set it). The latter would
+        # be enough, but disabled services are good in case of running test on
+        # downloaded qcow2 image.
         # This must be done after stopping network service and loading
         # test_net.sh script.
+        #
+        # try to disable firewall services
+        for my $service (qw(firewalld SuSEfirewall2)) {
+            script_run("systemctl stop $service; systemctl disable $service");
+        }
+        # disable IPv4 and IPv6 also directly via iptables
         my $disable_iptables_script = << 'EOF';
 iptables -P INPUT ACCEPT;
 iptables -P OUTPUT ACCEPT;
@@ -152,6 +161,7 @@ ip6tables -F;
 ip6tables -X;
 EOF
         script_output($disable_iptables_script);
+
         # display resulting iptables
         script_run('iptables -L');
         script_run('iptables -S');
