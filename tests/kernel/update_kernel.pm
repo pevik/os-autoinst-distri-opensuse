@@ -20,8 +20,6 @@ use version_utils 'is_sle';
 use qam;
 use kernel 'remove_kernel_packages';
 use power_action_utils 'power_action';
-use Utils::Backends 'use_ssh_serial_console';
-
 
 my $wk_ker = 0;
 
@@ -254,12 +252,10 @@ sub install_kotd {
 sub boot_to_console {
     my ($self) = @_;
     $self->wait_boot unless check_var('BACKEND', 'ipmi') && get_var('LTP_BAREMETAL');
-    if (check_var('BACKEND', 'ipmi')) {
-        use_ssh_serial_console;
-    }
-    else {
-        select_console('root-console');
-    }
+
+    set_var('VIRTIO_CONSOLE', 0);
+    bmwqemu::save_vars();
+    $self->select_serial_terminal;
 }
 
 sub run {

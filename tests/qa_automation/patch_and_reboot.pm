@@ -19,17 +19,13 @@ use warnings;
 use utils;
 use testapi;
 use qam;
-use Utils::Backends 'use_ssh_serial_console';
 
 sub run {
     my $self = shift;
 
-    if (check_var('BACKEND', 'ipmi')) {
-        use_ssh_serial_console;
-    }
-    else {
-        select_console 'root-console';
-    }
+    set_var('VIRTIO_CONSOLE', 0);
+    bmwqemu::save_vars();
+    $self->select_serial_terminal;
 
     pkcon_quit unless check_var('DESKTOP', 'textmode');
 

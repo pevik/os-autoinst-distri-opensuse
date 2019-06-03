@@ -19,11 +19,12 @@ use utils 'zypper_call';
 use power_action_utils 'power_action';
 use kdump_utils;
 use testapi;
-use Utils::Backends 'use_ssh_serial_console';
 
 sub run {
     my $self = shift;
-    check_var('BACKEND', 'ipmi') ? use_ssh_serial_console : select_console 'root-console';
+    set_var('VIRTIO_CONSOLE', 0);
+    bmwqemu::save_vars();
+    $self->select_serial_terminal;
 
     # Also panic when softlockup
     # workaround bsc#1104778, skip s390x in 12SP4
