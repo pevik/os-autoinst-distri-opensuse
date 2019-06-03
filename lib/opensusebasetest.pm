@@ -8,6 +8,7 @@ use warnings;
 use utils;
 use lockapi 'mutex_wait';
 use serial_terminal 'get_login_message';
+use Utils::Backends 'use_ssh_serial_console';
 use version_utils qw(is_sle is_leap is_upgrade is_aarch64_uefi_boot_hdd is_tumbleweed);
 use isotovideo;
 use IO::Socket::INET;
@@ -775,6 +776,7 @@ sub select_serial_terminal {
             $console = $root ? 'root-sut-serial' : 'sut-serial';
         }
     } elsif ($backend =~ /^(ikvm|ipmi|spvm)$/) {
+        use_ssh_serial_console if (check_var('BACKEND', 'ipmi'));
         $console = 'root-ssh';
     }
 
