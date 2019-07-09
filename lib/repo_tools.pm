@@ -19,10 +19,11 @@ use strict;
 use warnings;
 use testapi;
 use utils;
-use version_utils qw(get_distro get_version is_sle is_leap is_tumbleweed);
+use version_utils qw(get_distro get_product_version get_version is_leap is_opensuse is_sle is_tumbleweed);
 use y2_module_consoletest;
 
 our @EXPORT = qw(
+  add_qa_head_repo
   smt_wizard
   smt_mirror_repo
   rmt_wizard
@@ -35,6 +36,40 @@ our @EXPORT = qw(
   disable_oss_repo
   generate_version);
 
+=head2 add_qa_head_repo
+
+    add_qa_head_repo([url_only => 1]);
+
+Helper to add QA:HEAD repository repository.
+Use default values if QA_HEAD_REPO is not set.
+Suitable for both SLES and openSUSE.
+=cut
+sub add_qa_head_repo {
+    my %args     = @_;
+    my $url_only = $args{url_only};
+    my $repo     = get_var('QA_HEAD_REPO');
+    my $version;
+    if (!$repo) {
+        my $distro       = get_distro();
+        my $version      = get_version();
+        my $prod_version = get_product_version();
+        if (is_opensuse) {
+            $repo = 'https://download.opensuse.org/repositories/devel:/openSUSE:/QA:/';
+            $repo .= "$distro:/$prod_version/openSUSE_${distro}_$version/";
+        } elsif (is_sle) {
+            $repo = "http://download.suse.de/ibs/QA:/Head/SLE-$version/";
+        }
+        die 'QA_HEAD_REPO not detected' unless ($repo);
+
+        set_var('QA_HEAD_REPO', $repo);
+        bmwqemu::save_vars();
+    }
+    if (!$url_only) {
+        zypper_ar($repo, 'qa_repo');
+        zypper_call('--gpg-auto-import-keys ref');
+    }
+    return $repo;
+}
 
 =head2 get_repo_var_name
 This takes something like "MODULE_BASESYSTEM_SOURCE" as parameter

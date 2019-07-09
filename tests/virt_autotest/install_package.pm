@@ -16,6 +16,7 @@ use base "virt_autotest_base";
 use testapi;
 use virt_utils;
 use utils;
+use repo_tools 'add_qa_head_repo';
 use Utils::Architectures 'is_s390x';
 
 sub zypper_wrapper {
@@ -28,17 +29,14 @@ sub zypper_wrapper {
 }
 
 sub install_package {
-    my $qa_server_repo = get_var('QA_HEAD_REPO', '');
-    if ($qa_server_repo eq '') {
-        #default repo according to version if not set from testsuite
-        $qa_server_repo = 'http://dist.nue.suse.com/ibs/QA:/Head/SLE-' . get_var('VERSION');
-        set_var('QA_HEAD_REPO', $qa_server_repo);
-        bmwqemu::save_vars();
-    }
+    my $repo = 'qa_repo';
+    zypper_wrapper("rr $repo");
 
-    zypper_wrapper('rr server-repo');
-    zypper_wrapper("--no-gpg-check ar -f '$qa_server_repo' server-repo");
-    zypper_wrapper("--gpg-auto-import-keys ref");
+    my $url = add_qa_head_repo(url_only => is_s390x);
+    if (is_s390x) {
+        zypper_wrapper("ar $url $repo");
+        zypper_wrapper("--gpg-auto-import-keys ref --repo $repo");
+    }
 
     # workaround for dependency on xmlstarlet for qa_lib_virtauto on sles11sp4 and sles12sp1
     # workaround for dependency on bridge-utils for qa_lib_virtauto on sles15sp0

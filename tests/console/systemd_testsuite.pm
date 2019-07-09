@@ -15,24 +15,13 @@ use warnings;
 use strict;
 use testapi;
 use utils;
+use repo_tools 'add_qa_head_repo';
 use version_utils qw(is_leap is_tumbleweed is_sle);
 
 sub run {
-    my $qa_head_repo = get_var('QA_HEAD_REPO', '');
-    if (!$qa_head_repo) {
-        if (is_leap('15.0+')) {
-            $qa_head_repo = 'https://download.opensuse.org/repositories/devel:/openSUSE:/QA:/Leap:/15/openSUSE_Leap_15.0/';
-        }
-        elsif (is_sle('15+')) {
-            $qa_head_repo = 'http://download.suse.de/ibs/QA:/SLE15/standard/';
-        }
-        die '$qa_head_repo is not set' unless ($qa_head_repo);
-    }
-
     # install systemd testsuite
     select_console 'root-console';
-    zypper_call "ar $qa_head_repo systemd-testrepo";
-    zypper_call '--gpg-auto-import-keys ref';
+    add_qa_head_repo;
     zypper_call 'in systemd-qa-testsuite';
 
     # run the testsuite test scripts
@@ -41,7 +30,6 @@ sub run {
     assert_script_run 'grep "# FAIL:  0" /tmp/testsuite.log';
     assert_script_run 'grep "# ERROR: 0" /tmp/testsuite.log';
 }
-
 
 sub post_fail_hook {
     my ($self) = shift;
