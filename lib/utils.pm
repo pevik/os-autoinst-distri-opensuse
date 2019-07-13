@@ -412,7 +412,7 @@ sub zypper_call {
     my $allow_exit_codes = $args{exitcode} || [0];
     my $timeout          = $args{timeout} || 700;
     my $log              = $args{log};
-    my $dumb_term        = $args{dumb_term};
+    my $dumb_term        = $args{dumb_term} // is_serial_terminal;
 
     my $printer = $log ? "| tee /tmp/$log" : $dumb_term ? '| cat' : '';
     die 'Exit code is from PIPESTATUS[0], not grep' if $command =~ /^((?!`).)*\| ?grep/;
@@ -463,8 +463,8 @@ sub zypper_ar {
     my ($url, $name) = @_;
 
     if (script_run("zypper lr $name")) {
-        zypper_call("ar $url $name",                           dumb_term => 1);
-        zypper_call("--gpg-auto-import-keys ref --repo $name", dumb_term => 1);
+        zypper_call("ar $url $name");
+        zypper_call("--gpg-auto-import-keys ref --repo $name");
     }
 }
 
