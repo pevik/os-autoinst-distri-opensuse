@@ -288,6 +288,7 @@ sub run {
     my $fin_msg    = "### TEST $test->{name} COMPLETE >>> ";
     my $cmd_text   = qq($test->{command}; echo "$fin_msg\$?");
     my $klog_stamp = "echo 'OpenQA::run_ltp.pm: Starting $test->{name}' > /dev/$serialdev";
+    bmwqemu::fctwarn("pev: $test->{name}: START `date +'%F %T.%N'`"); # FIXME: debug
     my $start_time = thetime();
     # See poo#16648 for disabled LTP networking related tests.
     my $set_rhost = $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
@@ -316,7 +317,7 @@ sub run {
         if (get_var('LTP_DUMP_MEMORY_ON_TIMEOUT')) {
             save_memory_dump(filename => $test->{name});
         }
-        die "Timed out waiting for LTP test case which may still be running or the OS may have crashed!";
+        die "Timed out waiting for LTP test case which may still be running or the OS may have crashed! (test: $test->{name})";
     }
 
     if ($set_rhost) {
@@ -324,6 +325,10 @@ sub run {
     }
 
     script_run('vmstat -w');
+    if (is_serial_terminal) {
+        $klog_stamp = "echo 'OpenQA::run_ltp.pm: End of $test->{name}' > /dev/$serialdev";
+        script_run($klog_stamp);
+    }
 }
 
 # Only propogate death don't create it from failure [2]
