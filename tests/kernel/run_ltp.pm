@@ -272,6 +272,21 @@ sub thetime {
     return clock_gettime(CLOCK_MONOTONIC);
 }
 
+sub klog_stamp {
+    my $test = shift;
+    my $date = `date +'%F %T.%N'`;
+    chomp($date);
+    my $msg  = "$date OpenQA::run_ltp.pm: Starting $test";
+
+    bmwqemu::fctwarn("pev: $msg"); # FIXME: debug
+    script_run("echo 'XX $msg' > /dev/kmsg");
+    script_run("logger 'ZZ $msg'");
+    script_run("logger -s -t foo 'AA $msg'");
+    if (is_serial_terminal) {
+        script_run("echo 'YY $msg' > /dev/$serialdev");
+    }
+}
+
 sub run {
     my ($self, $tinfo) = @_;
     my $cmd_file = get_var 'LTP_COMMAND_FILE';
@@ -287,7 +302,7 @@ sub run {
 
     my $fin_msg    = "### TEST $test->{name} COMPLETE >>> ";
     my $cmd_text   = qq($test->{command}; echo "$fin_msg\$?");
-    my $klog_stamp = "echo 'OpenQA::run_ltp.pm: Starting $test->{name}' > /dev/$serialdev";
+    my $klog_stamp = "OpenQA::run_ltp.pm: Starting $test->{name}";
     my $start_time = thetime();
     # See poo#16648 for disabled LTP networking related tests.
     my $set_rhost = $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
@@ -296,8 +311,9 @@ sub run {
         assert_script_run(q(export RHOST='127.0.0.1'));
     }
 
+    klog_stamp($test->{name});
+
     if (is_serial_terminal) {
-        script_run($klog_stamp);
         wait_serial(serial_term_prompt(), undef, 0, no_regex => 1);
         type_string($cmd_text);
         wait_serial($cmd_text, undef, 0, no_regex => 1);
@@ -316,7 +332,7 @@ sub run {
         if (get_var('LTP_DUMP_MEMORY_ON_TIMEOUT')) {
             save_memory_dump(filename => $test->{name});
         }
-        die "Timed out waiting for LTP test case which may still be running or the OS may have crashed!";
+        die "Timed out waiting for LTP test case which may still be running or the OS may have crashed (on $test->{name})!";
     }
 
     if ($set_rhost) {
@@ -329,6 +345,7 @@ sub run {
 # Only propogate death don't create it from failure [2]
 sub run_post_fail {
     my ($self, $msg) = @_;
+    bmwqemu::fctwarn("running run_post_fail"); # FIXME: debug
 
     $self->fail_if_running();
     if ($msg =~ qr/died/) {
