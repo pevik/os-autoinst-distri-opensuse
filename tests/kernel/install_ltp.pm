@@ -349,7 +349,9 @@ sub run {
 
     upload_runtest_files('/opt/ltp/runtest', $tag);
 
+    bmwqemu::fctwarn("pev: before adding LTP_COMMAND_FILE"); # FIXME: debug
     if (get_var('LTP_COMMAND_FILE')) {
+        bmwqemu::fctwarn("pev: adding LTP_COMMAND_FILE"); # FIXME: debug
         loadtest_from_runtest_file();
         autotest::write_test_order();
     }

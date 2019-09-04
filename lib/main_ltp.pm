@@ -118,7 +118,9 @@ sub stress_snapshots {
 sub load_kernel_tests {
     load_bootloader_s390x();
 
+    bmwqemu::fctwarn("pev: before"); # FIXME: debug
     if (get_var('INSTALL_LTP')) {
+        bmwqemu::fctwarn("pev: INSTALL_LTP"); # FIXME: debug
         if (get_var('INSTALL_KOTD')) {
             loadtest 'install_kotd';
         }
@@ -134,6 +136,7 @@ sub load_kernel_tests {
         # If LTP_COMMAND_FILE is set, boot_ltp() and shutdown_ltp() will be added
         # later by install_ltp task.
         if (!get_var('LTP_COMMAND_FILE')) {
+            bmwqemu::fctwarn("pev: !LTP_COMMAND_FILE"); # FIXME: debug
             if (get_var('LTP_INSTALL_REBOOT')) {
                 loadtest 'boot_ltp';
             }
