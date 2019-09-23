@@ -334,6 +334,18 @@ sub run {
         install_from_repo($tag);
     }
 
+    # FIXME: debug
+    my $cmd = 'rpm -qa';
+    bmwqemu::fctwarn("pev: list before: $cmd"); # FIXME: debug
+    script_run($cmd);
+    bmwqemu::fctwarn("====="); # FIXME: debug
+    bmwqemu::fctwarn("force installing via install_runtime_dependencies_network"); # FIXME: debug
+    install_runtime_dependencies_network;
+    bmwqemu::fctwarn("pev: list after: $cmd"); # FIXME: debug
+    bmwqemu::fctwarn("====="); # FIXME: debug
+    script_run($cmd);
+    # FIXME: debug
+
     $grub_param .= ' console=hvc0'     if (get_var('ARCH') eq 'ppc64le');
     $grub_param .= ' console=ttysclp0' if (get_var('ARCH') eq 's390x');
     if (defined $grub_param) {
