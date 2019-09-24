@@ -484,6 +484,16 @@ sub init_consoles {
                 serial   => 'mkfifo /dev/sshserial; tail -fn +1 /dev/sshserial',
                 gui      => 1
             });
+        $self->add_console(
+            'root-ssh-serial',
+            'ssh-xterm-serial',
+            {
+                hostname => get_required_var('SUT_IP'),
+                password => $testapi::password,
+                user     => 'root',
+                serial   => 'mkfifo /dev/sshserial; tail -fn +1 /dev/sshserial',
+                gui      => 1
+            });
     }
 
     if (get_var('BACKEND', '') =~ /ipmi|s390x|spvm/ || get_var('S390_ZKVM')) {
