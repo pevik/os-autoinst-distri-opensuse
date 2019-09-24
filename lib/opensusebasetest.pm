@@ -913,7 +913,7 @@ sub select_serial_terminal {
             $console = $root ? 'root-sut-serial' : 'sut-serial';
         }
     } elsif ($backend =~ /^(ikvm|ipmi|spvm)$/) {
-        $console = 'root-ssh';
+        $console = 'root-ssh-serial';
     }
 
     die "No support for backend '$backend', add it" if ($console eq '');
