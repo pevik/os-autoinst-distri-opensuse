@@ -285,27 +285,10 @@ sub setup_network {
     }
 }
 
-sub run {
-    my $self     = shift;
-    my $inst_ltp = get_var 'INSTALL_LTP';
+sub install_ltp {
+    my $inst_ltp = shift;
     my $tag      = get_ltp_tag();
     my $grub_param;
-
-    if ($inst_ltp !~ /(repo|git)/i) {
-        die 'INSTALL_LTP must contain "git" or "repo"';
-    }
-
-    if (!get_var('LTP_BAREMETAL') && !is_jeos) {
-        $self->wait_boot;
-    }
-
-    # poo#18980
-    if (get_var('OFW') && !check_var('VIRTIO_CONSOLE', 0)) {
-        select_console('root-console');
-        add_serial_console('hvc1');
-    }
-
-    $self->select_serial_terminal;
 
     if (script_output('cat /sys/module/printk/parameters/time') eq 'N') {
         script_run('echo 1 > /sys/module/printk/parameters/time');
@@ -348,6 +331,33 @@ sub run {
     if (get_var('LTP_COMMAND_FILE')) {
         # This assumes that current working directory is the worker's pool dir
         loadtest_from_runtest_file('assets_public');
+    }
+}
+
+sub run {
+    my $self     = shift;
+    my $inst_ltp = get_var('INSTALL_LTP');
+
+    if ($inst_ltp !~ /(repo|git)/i) {
+        die 'INSTALL_LTP must contain "git" or "repo"';
+    }
+
+    if (!get_var('LTP_BAREMETAL') && !is_jeos) {
+        $self->wait_boot;
+    }
+
+    # poo#18980
+    if (get_var('OFW') && !check_var('VIRTIO_CONSOLE', 0)) {
+        select_console('root-console');
+        add_serial_console('hvc1');
+    }
+
+    $self->select_serial_terminal;
+
+    if (!check_var('FORCE_INSTALL_LTP', '1') && script_run('[ -d /opt/ltp ]') eq 0) {
+        record_info('LTP already installed, force reinstallation with FORCE_INSTALL_LTP=1');
+    } else {
+        install_ltp($inst_ltp);
     }
 
     power_action('reboot', textmode => 1) if get_var('LTP_INSTALL_REBOOT') ||
@@ -411,6 +421,7 @@ OpenQA is configured the ISO variable may not be necessary either.
 
 Either should contain 'git' or 'repo'. Git is recommended for now. If you decide
 to install from the repo then also specify QA_HEAD_REPO.
+Skip LTP installation if already installed, unless FORCE_INSTALL_LTP=1 set.
 
 =head2 LTP_REPOSITORY
 
@@ -477,6 +488,10 @@ will be used.
 =head2 LTP_GIT_URL
 
 Overrides the official LTP GitHub repository URL.
+
+=head2 FORCE_INSTALL_LTP
+
+Forces LTP installation even if LTP is already installed.
 
 =head2 LTP_COMMAND_FILE
 
