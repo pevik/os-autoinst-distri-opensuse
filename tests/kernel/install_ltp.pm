@@ -478,6 +478,10 @@ will be used.
 
 Overrides the official LTP GitHub repository URL.
 
+=head2 LTP_COMMAND_FILE
+
+See run_ltp.pm.
+
 =head2 GRUB_PARAM
 
 Append custom group entries with appended group param via

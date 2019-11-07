@@ -430,5 +430,9 @@ The runtest asset files are appended with git or pkg depending on how LTP was
 installed. By default the runtest files from the git installation will be
 uesd, but setting this variable to pkg allows that behavior to be overridden.
 
+=head2 INSTALL_LTP
+
+See run_ltp.pm.
+
 =cut
 
