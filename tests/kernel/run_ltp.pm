@@ -294,6 +294,30 @@ sub run {
     # See poo#16648 for disabled LTP networking related tests.
     my $set_rhost = $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
 
+    # patch ltp
+    bmwqemu::fctwarn("pev: command: " . $test->{command} . "'"); # FIXME: debug
+    bmwqemu::fctwarn("pev: name: " . $test->{name} . "'"); # FIXME: debug
+    record_info("command: '" . $test->{command} . "'"); # FIXME: debug
+    upload_logs("/opt/ltp/testcases/bin/dhcp_lib.sh", failok => 1);
+    if ($test->{name} eq 'dhcpd6') {
+        record_info("patching :)"); # FIXME: debug
+        my $patch = << 'EOF';
+--- /opt/ltp/testcases/bin/dhcp_lib.sh
++++ /opt/ltp/testcases/bin/dhcp_lib.sh
+@@ -144,6 +144,7 @@ EOF
+ 			tst_res TINFO "wicked config file $wicked_cfg already exist"
+ 		fi
+
++		tst_res TINFO "$(wicked --version)"
+ 		tst_res TINFO "restarting wicked"
+ 		systemctl restart wicked
+ 	else
+EOF
+        script_output("f=/tmp/wicked.patch; echo \"$patch\" > \$f; cd /opt/ltp/testcases/bin; patch < \$f");
+    } else {
+        record_info("not patching"); # FIXME: debug
+    }
+
     if ($set_rhost) {
         assert_script_run(q(export RHOST='127.0.0.1'));
     }

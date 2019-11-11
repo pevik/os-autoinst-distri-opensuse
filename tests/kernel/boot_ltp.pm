@@ -126,6 +126,9 @@ done
 EOF
         script_output($conf_nic_script);
 
+        script_output('wicked --version');
+        upload_logs("/usr/share/doc/packages/wicked/ChangeLog", failok => 1);
+
         # emulate $LTPROOT/testscripts/network.sh
         assert_script_run('curl ' . data_url("ltp/net.sh") . ' -o net.sh', 60);
         assert_script_run('chmod 755 net.sh');
