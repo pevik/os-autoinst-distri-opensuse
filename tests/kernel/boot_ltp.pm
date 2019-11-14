@@ -45,6 +45,7 @@ sub run {
     $self->select_serial_terminal;
 
     download_whitelist if get_var('LTP_KNOWN_ISSUES');
+    script_run('for i in wickedd wicked wickedd-nanny; do $i --version; done');
 
     assert_script_run('export LTPROOT=/opt/ltp; export LTP_COLORIZE_OUTPUT=n TMPDIR=/tmp PATH=$LTPROOT/testcases/bin:$PATH');
 
