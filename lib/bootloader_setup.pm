@@ -690,9 +690,12 @@ sub specific_bootmenu_params {
         return " @params ";
     }
 
+    bmwqemu::fctwarn("pev: forcing ifcfg=*=dhcp"); # FIXME: debug
+    push @params, 'ifcfg=*=dhcp';
+
     type_string_very_slow " @params " if @params;
     save_screenshot;
-    bmwqemu::fctwarn("pev: END params:"); # FIXME: debug
+    bmwqemu::fctwarn("pev: END params: " . print join(", ", @params)); # FIXME: debug
     bmwqemu::log_call(@params);
     return @params;
 }
