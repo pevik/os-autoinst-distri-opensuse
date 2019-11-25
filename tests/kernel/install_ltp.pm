@@ -319,6 +319,18 @@ sub run {
         $grub_param = 'printk.time=1';
     }
 
+    # FIXME: debug
+    script_run('ip a');
+    script_run('ip r');
+    script_run('ls -la /etc/resolv.conf; cat /etc/resolv.conf');
+    script_run('cat /proc/net/dev');
+    script_run('ping -c2 8.8.8.8');
+    script_run('ls -1 /etc/sysconfig/network/*');
+    script_run('for i in /etc/sysconfig/network/ifcfg-*; do echo == $i ==; cat $i; done');
+    script_run('ps aux|grep [w]icked');
+    script_run('systemctl restart network');
+    # FIXME: debug
+
     # check kGraft if KGRAFT=1
     if (check_var("KGRAFT", '1')) {
         assert_script_run("uname -v | grep -E '(/kGraft-|/lp-)'");
