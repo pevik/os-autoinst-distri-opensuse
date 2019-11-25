@@ -602,6 +602,8 @@ sub autoyast_boot_params {
 
 sub specific_bootmenu_params {
     my @params;
+    bmwqemu::fctwarn("pev: START"); # FIXME: debug
+    bmwqemu::fctwarn("pev: NETWORK_INIT_PARAM: '" . get_var("NETWORK_INIT_PARAM", '') . "'"); # FIXME: debug
 
     if (!check_var('ARCH', 's390x')) {
         my @netsetup;
@@ -613,6 +615,9 @@ sub specific_bootmenu_params {
             # 'ifcfg=*=dhcp' sets this variable in ifcfg-eth0 as well and we can't
             # have them both as it's not deterministic. Don't set on IPMI with net interface defined in SUT_NETDEVICE.
             my $ifcfg = check_var('BACKEND', 'ipmi') ? '' : 'ifcfg=*=dhcp SetHostname=0';
+
+            bmwqemu::fctwarn("pev: ifcfg: '$ifcfg'"); # FIXME: debug
+
             @netsetup = split ' ', get_var("NETWORK_INIT_PARAM", "$ifcfg");
             push @params, @netsetup;
             push @params, autoyast_boot_params;
@@ -687,6 +692,8 @@ sub specific_bootmenu_params {
 
     type_string_very_slow " @params " if @params;
     save_screenshot;
+    bmwqemu::fctwarn("pev: END params:"); # FIXME: debug
+    bmwqemu::log_call(@params);
     return @params;
 }
 
