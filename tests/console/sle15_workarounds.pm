@@ -37,7 +37,9 @@ sub run {
             record_soft_failure 'bsc#1054782';
         }
     }
-    select_console('root-console');
+
+    $self->select_serial_terminal;
+
     # Stop packagekit
     pkcon_quit;
 
