@@ -908,15 +908,6 @@ sub load_inst_tests {
             elsif (get_var('LVM_THIN_LV')) {
                 loadtest "installation/partitioning_lvm_thin_provisioning";
             }
-            # For s390x there was no offering of separated home partition until SLE 15 See bsc#1072869
-            elsif (!(is_sle('<15') && is_s390x())) {
-                if (check_var("SEPARATE_HOME", 1)) {
-                    loadtest "installation/partitioning/separate_home";
-                }
-                elsif (check_var("SEPARATE_HOME", 0)) {
-                    loadtest "installation/partitioning/no_separate_home";
-                }
-            }
             if (get_var("FILESYSTEM")) {
                 if (get_var('PARTITIONING_WARNINGS')) {
                     loadtest 'installation/partitioning_warnings';
