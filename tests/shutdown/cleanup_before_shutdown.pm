@@ -36,7 +36,7 @@ sub run {
              echo -e '#!/bin/sh
              echo --- dmesg log ---  > /dev/$serialdev
              dmesg -T >> /dev/$serialdev
-             echo --- journactl log ---  >> /dev/$serialdev 
+             echo --- journactl log ---  >> /dev/$serialdev
              journalctl >> /dev/$serialdev'  > /usr/lib/systemd/system-shutdown/debug.sh \\
 END_SCRIPT
         assert_script_run $script;
