@@ -33,6 +33,13 @@ sub run {
     add_suseconnect_product("sle-sdk") if (is_sle('<12-SP5'));
     zypper_call('in -l autoconf automake gcc git make');
 
+    script_run('ls -la /lib/modules/');
+    script_run('ls -la /lib/modules/$(uname -r)/');
+    script_run('ls -la /lib/modules/$(uname -r)/source');
+    script_run('ls -la /lib/modules/$(uname -r)/build');
+    script_run('ls -la /usr/src/linux-*');
+    script_run('rpm -qa |grep ^kernel');
+
     assert_script_run('git clone ' . $git_repo);
     assert_script_run("cd qa_test_$test_type; ./run.sh", 2760);
 }
