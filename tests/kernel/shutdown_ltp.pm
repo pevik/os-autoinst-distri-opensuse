@@ -46,6 +46,9 @@ sub run {
     upload_system_logs();
 
     power_action('poweroff');
+
+    bmwqemu::fctwarn("pev: sleep"); # FIXME: debug
+    sleep; # FIXME: debug
 }
 
 sub test_flags {
