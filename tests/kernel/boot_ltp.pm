@@ -26,7 +26,11 @@ sub run {
     my $is_network = $cmd_file =~ m/^\s*(net|net_stress)\./;
     my $is_ima     = $cmd_file =~ m/^ima$/i;
 
-    if ($is_ima) {
+    if (1) {
+        record_info('INFO', 'Debug boot 2, 2');
+        boot_grub_item(2, 2);
+    }
+    elsif ($is_ima) {
         record_info('INFO', 'IMA boot');
         # boot kernel with IMA parameters
         boot_grub_item();
