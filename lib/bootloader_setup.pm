@@ -181,25 +181,46 @@ Boot the default kernel recovery mode (selected in the "Advanced options ..."):
     boot_grub_item(2, 2);
 
 =cut
+# private function
+sub grub_key_down {
+    if (get_var('S390_ZKVM')) {
+        type_line_svirt '$\'\\e\'[B', use_printf => 1;
+    }
+    else {
+        wait_screen_change { send_key 'down' };
+    }
+}
+
+# private function
+sub grub_key_enter {
+    if (get_var('S390_ZKVM')) {
+        type_line_svirt '';
+    }
+    else {
+        send_key 'ret';
+    }
+}
+
 sub boot_grub_item {
     my ($menu1, $menu2) = @_;
     $menu1 = 3 unless defined($menu1);
     $menu2 = 1 unless defined($menu2);
     die((caller(0))[3] . " expects integer arguments ($menu1, $menu2)") unless ($menu1 =~ /^\d+\z/ && $menu2 =~ /^\d+\z/);
 
-    assert_screen "grub2";
+    # boot_grub_item in bootloader_zkvm cannot use needles
+    assert_screen "grub2" if !get_var('S390_ZKVM');
 
     for (1 .. ($menu1 - 1)) {
-        wait_screen_change { send_key 'down' };
+        grub_key_down;
     }
     save_screenshot;
     send_key 'ret';
 
     for (1 .. ($menu2 - 1)) {
-        wait_screen_change { send_key 'down' };
+        grub_key_down;
     }
     save_screenshot;
-    send_key 'ret';
+    grub_key_enter;
 }
 
 
