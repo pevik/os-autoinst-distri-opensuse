@@ -119,6 +119,7 @@ partitions and rewriting the network definition of zKVM instances.
 Does B<not> work on B<Hyper-V>.
 =cut
 sub save_svirt_pty {
+    bmwqemu::fctinfo("pev: START save_svirt_pty"); # FIXME: debug
     return if check_var('VIRSH_VMM_FAMILY', 'hyperv');
     my $name = console('svirt')->name;
     type_string "pty=`virsh dumpxml $name 2>/dev/null | grep \"console type=\" | sed \"s/'/ /g\" | awk '{ print \$5 }'`\n";

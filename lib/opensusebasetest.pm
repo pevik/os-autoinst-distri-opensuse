@@ -662,9 +662,41 @@ sub reconnect_s390 {
         my $worker_hostname = get_required_var('WORKER_HOSTNAME');
         my $virsh_guest     = get_required_var('VIRSH_GUEST');
         workaround_type_encrypted_passphrase if get_var('S390_ZKVM');
-        wait_serial('GNU GRUB') || diag 'Could not find GRUB screen, continuing nevertheless, trying to boot';
+
+        bmwqemu::fctinfo("pev: select_console('svirt')"); # FIXME: debug
         select_console('svirt');
+        record_info('before save_svirt_pty'); # FIXME: debug
+        bmwqemu::fctinfo("pev: call save_svirt_pty"); # FIXME: debug
         save_svirt_pty;
+
+        bmwqemu::fctinfo("pev: reconnect_s390: BEFORE wait_serial('GNU GRUB')"); # FIXME: debug
+        record_info('before GRUB'); # FIXME: debug
+        wait_serial('GNU GRUB') || diag 'Could not find GRUB screen, continuing nevertheless, trying to boot';
+        bmwqemu::fctinfo("pev: reconnect_s390: AFTER wait_serial('GNU GRUB')"); # FIXME: debug
+        record_info('AFTER GRUB'); # FIXME: debug
+
+        # OK
+        #bmwqemu::fctinfo("pev: BEFORE trying edit :)"); # FIXME: debug
+        #type_line_svirt 'e';
+        #bmwqemu::fctinfo("pev: AFTER trying edit :)"); # FIXME: debug
+
+        # BROKEN
+        #bmwqemu::fctinfo("pev: BEFORE trying boot_grub_item(3, 1)"); # FIXME: debug
+        #boot_grub_item(3, 1);
+        #bmwqemu::fctinfo("pev: AFTER trying boot_grub_item(3, 1)"); # FIXME: debug
+
+        bmwqemu::fctinfo("pev: trying down ======================"); # FIXME: debug
+        # debug_pagealloc=on
+        type_line_svirt '$\'\\e\'[B', use_printf => 1;
+        type_line_svirt '$\'\\e\'[B', use_printf => 1;
+        # ima_policy=tcb
+        #type_line_svirt '$\'\\e\'[B', use_printf => 1;
+        #type_line_svirt '$\'\\e\'[B', use_printf => 1;
+
+        bmwqemu::fctinfo("pev: ----------------------"); # FIXME: debug
+        record_info("AFTER printf"); # FIXME: debug
+        save_screenshot; # FIXME: debug
+
         type_line_svirt '', expect => $login_ready, timeout => $ready_time + 100, fail_message => 'Could not find login prompt';
         type_line_svirt "root", expect => 'Password';
         type_line_svirt "$testapi::password";
@@ -737,6 +769,7 @@ sub handle_pxeboot {
 }
 
 sub handle_grub {
+    bmwqemu::fctinfo("pev: START handle_grub"); # FIXME: debug
     my ($self, %args) = @_;
     my $bootloader_time  = $args{bootloader_time};
     my $in_grub          = $args{in_grub};
