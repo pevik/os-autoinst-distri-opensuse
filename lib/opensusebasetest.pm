@@ -637,15 +637,20 @@ sub wait_grub_to_boot_on_local_disk {
 }
 
 sub reconnect_s390 {
+    bmwqemu::fctinfo("pev: START reconnect_s390"); # FIXME: debug
     my (%args)     = @_;
     my $ready_time = $args{ready_time};
     my $textmode   = $args{textmode};
+    bmwqemu::fctinfo("pev: reconnect_s390: before return"); # FIXME: debug
     return undef unless check_var('ARCH', 's390x');
+    bmwqemu::fctinfo("pev: reconnect_s390: continue :)"); # FIXME: debug
     my $login_ready = get_login_message();
     if (check_var('BACKEND', 's390x')) {
         my $console = console('x3270');
+        bmwqemu::fctinfo("pev: reconnect_s390: BACKEND s390x :)"); # FIXME: debug
         # skip grub handle for 11sp4
         if (!is_sle('=11-SP4')) {
+            bmwqemu::fctinfo("pev: reconnect_s390 call handle_grub_zvm"); # FIXME: debug
             handle_grub_zvm($console);
         }
         $console->expect_3270(
@@ -659,12 +664,47 @@ sub reconnect_s390 {
         select_console('iucvconn');
     }
     else {
+        bmwqemu::fctinfo("pev: reconnect_s390: ELSE BACKEND s390x :("); # FIXME: debug
         my $worker_hostname = get_required_var('WORKER_HOSTNAME');
         my $virsh_guest     = get_required_var('VIRSH_GUEST');
         workaround_type_encrypted_passphrase if get_var('S390_ZKVM');
-        wait_serial('GNU GRUB') || diag 'Could not find GRUB screen, continuing nevertheless, trying to boot';
+
+        bmwqemu::fctinfo("pev: select_console('svirt')"); # FIXME: debug
         select_console('svirt');
+        record_info('before save_svirt_pty'); # FIXME: debug
+        bmwqemu::fctinfo("pev: save_svirt_pty"); # FIXME: debug
         save_svirt_pty;
+
+        bmwqemu::fctinfo("pev: reconnect_s390: BEFORE wait_serial('GNU GRUB')"); # FIXME: debug
+        record_info('before GRUB'); # FIXME: debug
+        wait_serial('GNU GRUB') || diag 'Could not find GRUB screen, continuing nevertheless, trying to boot';
+        bmwqemu::fctinfo("pev: reconnect_s390: AFTER wait_serial('GNU GRUB')"); # FIXME: debug
+        record_info('AFTER GRUB'); # FIXME: debug
+        save_screenshot; # FIXME: debug
+
+        # OK
+        #bmwqemu::fctinfo("pev: BEFORE trying edit :)"); # FIXME: debug
+        #type_line_svirt 'e';
+        #bmwqemu::fctinfo("pev: AFTER trying edit :)"); # FIXME: debug
+
+        # BROKEN
+        #bmwqemu::fctinfo("pev: BEFORE trying boot_grub_item(3, 1)"); # FIXME: debug
+        #boot_grub_item(3, 1);
+        #bmwqemu::fctinfo("pev: AFTER trying boot_grub_item(3, 1)"); # FIXME: debug
+
+        # printf "aa" > /dev/pts/0; printf $'\e'[A > /dev/pts/0
+        bmwqemu::fctinfo("pev: trying down ======================"); # FIXME: debug
+        #type_string 'echo $\'\\e\'[A > $pty\n';
+        #type_string 'echo $\'\\e\'[A > $pty\n';
+        #type_string 'echo $\'\\e\'[A\n';
+        #type_string 'printf $\'\\e\'[A\n';
+        type_line_svirt '$\'\\e\'[B', cmd => 'printf';
+        type_line_svirt '$\'\\e\'[B', cmd => 'printf';
+        type_line_svirt '$\'\\e\'[B', cmd => 'printf';
+        type_line_svirt '$\'\\e\'[B', cmd => 'printf';
+        bmwqemu::fctinfo("pev: ----------------------"); # FIXME: debug
+        save_screenshot; # FIXME: debug
+
         type_line_svirt '', expect => $login_ready, timeout => $ready_time + 100, fail_message => 'Could not find login prompt';
         type_line_svirt "root", expect => 'Password';
         type_line_svirt "$testapi::password";
@@ -737,6 +777,7 @@ sub handle_pxeboot {
 }
 
 sub handle_grub {
+    bmwqemu::fctinfo("pev: START handle_grub"); # FIXME: debug
     my ($self, %args) = @_;
     my $bootloader_time  = $args{bootloader_time};
     my $in_grub          = $args{in_grub};
@@ -923,6 +964,7 @@ from there. C<$forcenologin> makes this function behave as if
 the env var NOAUTOLOGIN was set.
 =cut
 sub wait_boot {
+    bmwqemu::fctinfo("pev: START wait_boot"); # FIXME: debug
     my ($self, %args) = @_;
     my $bootloader_time = $args{bootloader_time} // 100;
     my $textmode        = $args{textmode};
@@ -938,7 +980,9 @@ sub wait_boot {
     # Reset the consoles after the reboot: there is no user logged in anywhere
     reset_consoles;
     select_console('sol', await_console => 0) if check_var('BACKEND', 'ipmi');
+    bmwqemu::fctinfo("pev: wait_boot: before reconnect_s390"); # FIXME: debug
     if (reconnect_s390(textmode => $textmode, ready_time => $ready_time)) {
+        bmwqemu::fctinfo("pev: wait_boot: called reconnect_s390"); # FIXME: debug
     }
     elsif (get_var('USE_SUPPORT_SERVER') && get_var('USE_SUPPORT_SERVER_PXE_CUSTOMKERNEL')) {
         # A supportserver client to reboot via PXE after an initial installation.

@@ -136,7 +136,9 @@ If the expected text is not found, it will fail with C<$fail_message>.
 =cut
 sub type_line_svirt {
     my ($string, %args) = @_;
-    type_string "echo $string > \$pty\n";
+    my $cmd = "echo";
+    $cmd = $args{cmd} if ($args{cmd});
+    type_string "$cmd $string > \$pty\n";
     if ($args{expect}) {
         wait_serial($args{expect}, $args{timeout}) || die $args{fail_message} // 'expected \'' . $args{expect} . '\' not found';
     }
