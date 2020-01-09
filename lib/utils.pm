@@ -127,16 +127,19 @@ sub save_svirt_pty {
 
 =head2 type_line_svirt
 
- type_line_svirt($string [, expect => $expect] [, timeout => $timeout] [, fail_message => $fail_message]);
+ type_line_svirt($string [, expect => $expect] [, timeout => $timeout] [, fail_message => $fail_message] [, use_printf => 1]);
 
 Sends C<$string> to the svirt terminal, waits up to C<$timeout> seconds
 and expects C<$expect> to be returned on the terminal if C<$expect> is set.
 If the expected text is not found, it will fail with C<$fail_message>.
+Default use echo, C<$use_printf> allows to use printf.
 
 =cut
 sub type_line_svirt {
     my ($string, %args) = @_;
-    type_string "echo $string > \$pty\n";
+    my $cmd = "echo";
+    $cmd = "printf" if ($args{use_printf});
+    type_string "$cmd $string > \$pty\n";
     if ($args{expect}) {
         wait_serial($args{expect}, $args{timeout}) || die $args{fail_message} // 'expected \'' . $args{expect} . '\' not found';
     }
