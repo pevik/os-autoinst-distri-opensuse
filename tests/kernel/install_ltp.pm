@@ -348,6 +348,12 @@ sub run {
     else {
         add_ltp_repo;
         install_from_repo($tag);
+
+        # FIXME: debug
+        bmwqemu::fctinfo("pev: install_runtime_dependencies_network");
+        install_runtime_dependencies_network;
+        bmwqemu::fctinfo("pev: install_debugging_tools");
+        install_debugging_tools;
     }
 
     $grub_param .= ' console=hvc0'     if (get_var('ARCH') eq 'ppc64le');
