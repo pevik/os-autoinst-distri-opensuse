@@ -367,7 +367,7 @@ sub run {
     is_jeos && zypper_call 'in system-user-bin system-user-daemon';
 
     power_action('reboot', textmode => 1) if (get_var('LTP_INSTALL_REBOOT') ||
-        get_var('LTP_COMMAND_FILE')) && !is_jeos;
+        get_var('LTP_COMMAND_FILE') || check_var('BACKEND', 's390x')) && !is_jeos;
 }
 
 sub post_fail_hook {
