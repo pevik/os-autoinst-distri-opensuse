@@ -183,28 +183,44 @@ sub prepare_kgraft {
     install_klp_product;
 
     #add repository with tested patch
+    my $incident_klp_pkg;
     my @repos = split(",", $repo);
     while (my ($i, $val) = each(@repos)) {
-        zypper_call("ar $val kgraft-test-repo-$i");
-
-        my $kversion = zypper_search(q(-s -x kernel-default));
-        my $pkgs     = zypper_search("-s -t package -r kgraft-test-repo-$i");
-
+        my $cur_repo = "kgraft-test-repo-$i";
+        zypper_call("ar $val $cur_repo");
+        my $pkgs = zypper_search("-s -t package -r $cur_repo");
         #disable kgraf-test-repo for while
-        zypper_call("mr -d kgraft-test-repo-$i");
+        zypper_call("mr -d $cur_repo");
 
         fully_patch_system;
         foreach my $pkg (@$pkgs) {
-            my $incident_klp_pkg = is_klp_pkg($pkg);
-            if ($incident_klp_pkg && $$incident_klp_pkg{kflavor} eq 'default') {
-                my $wanted_version = right_kversion($kversion, $incident_klp_pkg);
-                install_lock_kernel($wanted_version);
-                last;
+            my $cur_klp_pkg = is_klp_pkg($pkg);
+            if ($cur_klp_pkg && $$cur_klp_pkg{kflavor} eq 'default') {
+                if ($incident_klp_pkg) {
+                    die "Multiple kernel live patch packages found: \"$$incident_klp_pkg{name}-$$incident_klp_pkg{version}\" and \"$$cur_klp_pkg{name}-$$cur_klp_pkg{version}\"";
+                }
+                else {
+                    $incident_klp_pkg = $cur_klp_pkg;
+                }
             }
         }
+    }
 
-        my $pversion = join(' ', map { $$_{name} } @$pkgs);
-        if (check_var('REMOVE_KGRAFT', '1')) {
+    if (!$incident_klp_pkg) {
+        die "No kernel livepatch package found";
+    }
+
+    my $kversion       = zypper_search(q(-s -x kernel-default));
+    my $wanted_version = right_kversion($kversion, $incident_klp_pkg);
+    install_lock_kernel($wanted_version);
+
+    if (check_var('REMOVE_KGRAFT', '1')) {
+        while (my ($i, $val) = each(@repos)) {
+            my $cur_repo = "kgraft-test-repo-$i";
+            zypper_call("mr -e $cur_repo");
+            my $pkgs = zypper_search("-s -t package -r $cur_repo");
+            zypper_call("mr -d $cur_repo");
+            my $pversion = join(' ', map { $$_{name} } @$pkgs);
             zypper_call("rm " . $pversion);
         }
     }
