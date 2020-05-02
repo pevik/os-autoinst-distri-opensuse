@@ -180,6 +180,7 @@ sub install_lock_kernel {
 sub prepare_kgraft {
     my ($repo, $incident_id) = @_;
 
+    fully_patch_system;
     install_klp_product;
 
     #add repository with tested patch
@@ -192,7 +193,6 @@ sub prepare_kgraft {
         #disable kgraf-test-repo for while
         zypper_call("mr -d $cur_repo");
 
-        fully_patch_system;
         foreach my $pkg (@$pkgs) {
             my $cur_klp_pkg = is_klp_pkg($pkg);
             if ($cur_klp_pkg && $$cur_klp_pkg{kflavor} eq 'default') {
