@@ -181,7 +181,6 @@ sub prepare_kgraft {
     my ($repo, $incident_id) = @_;
 
     fully_patch_system;
-    install_klp_product;
 
     #add repository with tested patch
     my $incident_klp_pkg;
@@ -214,7 +213,10 @@ sub prepare_kgraft {
     my $wanted_version = right_kversion($kversion, $incident_klp_pkg);
     install_lock_kernel($wanted_version);
 
-    if (check_var('REMOVE_KGRAFT', '1')) {
+    if (!check_var('REMOVE_KGRAFT', '1')) {
+        install_klp_product;
+    }
+    else {
         while (my ($i, $val) = each(@repos)) {
             my $cur_repo = "kgraft-test-repo-$i";
             zypper_call("mr -e $cur_repo");
