@@ -218,6 +218,8 @@ sub prepare_kgraft {
     }
 
     power_action('reboot', textmode => 1);
+
+    return $incident_klp_pkg;
 }
 
 sub right_kversion {
@@ -233,7 +235,7 @@ sub right_kversion {
 }
 
 sub update_kgraft {
-    my ($repo, $incident_id) = @_;
+    my ($incident_klp_pkg, $repo, $incident_id) = @_;
 
     my @repos = split(",", $repo);
     while (my ($i, $val) = each(@repos)) {
@@ -271,6 +273,16 @@ sub update_kgraft {
 
         script_run(qq{rpm -qa --qf "%{NAME}-%{VERSION}-%{RELEASE} (%{INSTALLTIME:date})\n" | sort -t '-' > /tmp/rpmlist.after});
         upload_logs('/tmp/rpmlist.after');
+
+        my $installed_klp_pkg =
+          find_installed_klp_pkg($$incident_klp_pkg{kver},
+            $$incident_klp_pkg{kflavor});
+        if (!$installed_klp_pkg) {
+            die "No kernel livepatch package installed after update";
+        }
+        elsif (!klp_pkg_eq($installed_klp_pkg, $incident_klp_pkg)) {
+            die "Unexpected kernel livepatch package installed after update";
+        }
     }
 }
 
@@ -305,7 +317,7 @@ sub run {
     }
 
     if (get_var('KGRAFT')) {
-        prepare_kgraft($repo, $incident_id);
+        my $incident_klp_pkg = prepare_kgraft($repo, $incident_id);
         boot_to_console($self);
 
         if (!check_var('REMOVE_KGRAFT', '1')) {
@@ -314,7 +326,7 @@ sub run {
             zypper_call("in qa_lib_ctcs2 qa_test_ltp qa_test_newburn");
 
             # update kgraft patch under heavy load
-            update_kgraft($repo, $incident_id);
+            update_kgraft($incident_klp_pkg, $repo, $incident_id);
 
             zypper_call("rr qa-head");
             zypper_call("rm qa_lib_ctcs2 qa_test_ltp qa_test_newburn");
