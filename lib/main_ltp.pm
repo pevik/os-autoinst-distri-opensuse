@@ -196,6 +196,10 @@ sub load_kernel_tests {
         loadtest 'boot_ltp';
         loadtest 'qa_test_klp';
     }
+    elsif (get_var('INSTALL_KLP_PRODUCT')) {
+        loadtest 'boot_ltp';
+        loadtest 'install_klp_product';
+    }
     elsif (get_var('VIRTIO_CONSOLE_TEST')) {
         loadtest 'virtio_console';
         loadtest 'virtio_console_long_output';
