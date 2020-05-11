@@ -310,6 +310,9 @@ sub run {
     # See poo#16648 for disabled LTP networking related tests.
     my $set_rhost = $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
 
+    bmwqemu::fctwarn("pev: ps aux|grep rpcbind"); # FIXME: debug
+    script_output('ps aux|grep rpcbind'); # FIXME: debug
+
     if ($set_rhost) {
         assert_script_run(q(export RHOST='127.0.0.1'));
     }
