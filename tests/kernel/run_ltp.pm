@@ -310,8 +310,16 @@ sub run {
     # See poo#16648 for disabled LTP networking related tests.
     my $set_rhost = $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
 
-    bmwqemu::fctwarn("pev: ps aux|grep rpcbind"); # FIXME: debug
-    script_output('ps aux|grep rpcbind'); # FIXME: debug
+    # FIXME: debug
+    foreach my $foo (
+        'ps aux|grep rpcbind',
+        'ls -la /opt/ltp/testcases/bin/tirpc_rpcb_getaddr',
+        'find /opt/ltp/testcases/bin/ |grep tirpc_',
+        'find /opt/ltp/testcases/bin/ |grep tirpc_ -c',
+    ) {
+        bmwqemu::fctwarn("pev: $foo");
+        script_output($foo);
+    }
 
     if ($set_rhost) {
         assert_script_run(q(export RHOST='127.0.0.1'));
