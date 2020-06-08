@@ -31,9 +31,7 @@ sub run {
 
     # Configure static network, disable firewall
     disable_and_stop_service($self->firewall);
-    #disable apparmor
-    script_run("systemctl disable apparmor.service");
-    script_run("systemctl stop apparmor.service");
+    disable_and_stop_service('apparmor');
 
     # Configure the internal network an  try it
     if ($hostname =~ /server|master/) {
@@ -54,16 +52,14 @@ sub run {
                 assert_script_run 'systemctl restart  wicked';
             }
             else {
-                assert_script_run 'systemctl stop NetworkManager';
-                assert_script_run 'systemctl disable NetworkManager';
+                disable_and_stop_service('NetworkManager');
                 assert_script_run 'systemctl enable wicked';
                 assert_script_run 'systemctl start  wicked';
             }
         }
         #Opensuse versions
         if (is_opensuse) {
-            assert_script_run 'systemctl stop NetworkManager';
-            assert_script_run 'systemctl disable NetworkManager';
+            disable_and_stop_service('NetworkManager');
             assert_script_run 'systemctl start  wicked';
         }
     }
