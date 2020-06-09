@@ -84,7 +84,7 @@ sub run {
 
         if (is_sle('=15-sp1')) {
             record_soft_failure('disable lvm2-monitor service due to bsc#1158145');
-            disable_stop_service('lvm2-monitor', ignore_failure => 1);
+            disable_stop_service('lvm2-monitor');
         }
         prepare_system_shutdown;
         type_string "reboot\n";

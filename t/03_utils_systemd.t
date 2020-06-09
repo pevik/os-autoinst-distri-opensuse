@@ -9,7 +9,7 @@ use Test::MockModule;
 my $systemd = Test::MockModule->new('Utils::Systemd', no_auto => 1);
 my @calls;
 $systemd->redefine(script_run => sub { push @calls, @_; });
-disable_stop_service('foo', ignore_failure => 1);
+disable_stop_service('foo');
 like $calls[0], qr/systemctl.*disable foo/, 'script_run called with arguments';
 
 done_testing;

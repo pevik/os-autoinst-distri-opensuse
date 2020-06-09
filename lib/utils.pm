@@ -1176,7 +1176,7 @@ sub disable_serial_getty {
     # Mask if is qemu backend as use serial in remote installations e.g. during reboot
     my $mask = check_var('BACKEND', 'qemu');
     my $cmd  = $mask ? 'mask' : 'disable';
-    disable_stop_service($service_name, mask_service => $mask, ignore_failure => 1);
+    disable_stop_service($service_name, mask_service => $mask);
     record_info 'serial-getty', "Serial getty $cmd for $testapi::serialdev";
 }
 

@@ -31,14 +31,14 @@ sub run {
 
     # Configure static network, disable firewall
     disable_stop_service($self->firewall);
-    disable_stop_service('apparmor', ignore_failure => 1);
+    disable_stop_service('apparmor');
 
     # Configure the internal network an  try it
     if ($hostname =~ /server|master/) {
         setup_static_mm_network('10.0.2.101/24');
         #if server running opensuse.
         if (is_opensuse) {
-            disable_stop_service('NetworkManager', ignore_failure => 1);
+            disable_stop_service('NetworkManager');
             assert_script_run 'systemctl start  wicked';
         }
     }
@@ -51,7 +51,7 @@ sub run {
                 assert_script_run 'systemctl restart  wicked';
             }
             else {
-                disable_stop_service('NetworkManager', ignore_failure => 1);
+                disable_stop_service('NetworkManager');
                 assert_script_run 'systemctl enable wicked';
                 assert_script_run 'systemctl start  wicked';
             }
