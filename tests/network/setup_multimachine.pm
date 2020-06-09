@@ -17,7 +17,7 @@ use testapi;
 use lockapi;
 use mm_network 'setup_static_mm_network';
 use utils 'zypper_call';
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 use version_utils qw(is_sle is_opensuse);
 
 sub run {
@@ -30,15 +30,15 @@ sub run {
     assert_script_run('echo "10.0.2.102 client minion" >> /etc/hosts');
 
     # Configure static network, disable firewall
-    disable_and_stop_service($self->firewall);
-    disable_and_stop_service('apparmor', ignore_failure => 1);
+    disable_stop_service($self->firewall);
+    disable_stop_service('apparmor', ignore_failure => 1);
 
     # Configure the internal network an  try it
     if ($hostname =~ /server|master/) {
         setup_static_mm_network('10.0.2.101/24');
         #if server running opensuse.
         if (is_opensuse) {
-            disable_and_stop_service('NetworkManager', ignore_failure => 1);
+            disable_stop_service('NetworkManager', ignore_failure => 1);
             assert_script_run 'systemctl start  wicked';
         }
     }
@@ -51,7 +51,7 @@ sub run {
                 assert_script_run 'systemctl restart  wicked';
             }
             else {
-                disable_and_stop_service('NetworkManager', ignore_failure => 1);
+                disable_stop_service('NetworkManager', ignore_failure => 1);
                 assert_script_run 'systemctl enable wicked';
                 assert_script_run 'systemctl start  wicked';
             }

@@ -27,7 +27,7 @@ use serial_terminal 'prepare_serial_console';
 use upload_system_log;
 use version_utils qw(is_jeos is_opensuse is_released is_sle);
 use Utils::Architectures qw(is_aarch64 is_ppc64le is_s390x is_x86_64);
-use Utils::Systemd qw(systemctl disable_and_stop_service);
+use Utils::Systemd qw(systemctl disable_stop_service);
 use LTP::utils;
 
 sub add_we_repo_if_available {
@@ -294,7 +294,7 @@ sub setup_network {
         script_run('/etc/init.d/SuSEfirewall2_setup stop');
     }
     else {
-        disable_and_stop_service(opensusebasetest::firewall);
+        disable_stop_service(opensusebasetest::firewall);
     }
 }
 

@@ -29,7 +29,7 @@ use warnings;
 
 use testapi;
 use utils 'zypper_call';
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 use version_utils qw(is_sle is_opensuse);
 use registration "add_suseconnect_product";
 

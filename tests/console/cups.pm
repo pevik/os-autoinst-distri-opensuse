@@ -25,7 +25,7 @@ use strict;
 use warnings;
 use testapi;
 use utils qw(systemctl zypper_call);
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 use version_utils;
 use Utils::Architectures;
 use services::cups;
@@ -41,7 +41,7 @@ sub run {
     services::cups::check_service();
     services::cups::check_function();
 
-    disable_and_stop_service('cups.service');
+    disable_stop_service('cups.service');
     validate_script_output '{ systemctl --no-pager status cups.service | cat; } || test $? -eq 3', sub { m/Active:\s*inactive/ };
 }
 

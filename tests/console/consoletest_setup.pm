@@ -24,7 +24,7 @@ use base "consoletest";
 use testapi;
 use utils qw(check_console_font disable_serial_getty);
 use Utils::Backends qw(has_ttys);
-use Utils::Systemd qw(disable_and_stop_service systemctl);
+use Utils::Systemd qw(disable_stop_service systemctl);
 use strict;
 use warnings;
 
@@ -67,7 +67,7 @@ sub run {
     script_run 'echo "unset MAILCHECK" >> /etc/bash.bashrc.local';
     script_run 'echo "set -o pipefail" >> /etc/bash.bashrc.local';
     script_run '. /etc/bash.bashrc.local';
-    disable_and_stop_service('packagekit.service', mask_service => 1);
+    disable_stop_service('packagekit.service', mask_service => 1);
 
     # init
     check_console_font if has_ttys();

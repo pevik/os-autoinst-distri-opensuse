@@ -26,7 +26,7 @@ use warnings;
 use testapi;
 use utils;
 use List::Util qw(all any);
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 use version_utils 'is_sle';
 
 sub cmd_handle {
@@ -124,7 +124,7 @@ sub run {
     #remove zone, stop service
     $self->cmd_handle("zones", "remove", name => "example.org",              zonetype => "master");
     $self->cmd_handle("zones", "remove", name => "100.168.192.in-addr.arpa", zonetype => "master");
-    disable_and_stop_service('named.service');
+    disable_stop_service('named.service');
 }
 
 1;

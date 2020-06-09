@@ -23,7 +23,7 @@ use warnings;
 use testapi qw(script_run assert_script_run);
 
 our @EXPORT = qw(
-  disable_and_stop_service
+  disable_stop_service
   systemctl
 );
 
@@ -33,18 +33,18 @@ C<Utils::Systemd> - Library for systemd related functionality
 
 =cut
 
-=head2 disable_and_stop_service
+=head2 disable_stop_service
 
-    disable_and_stop_service($service_name[, mask_service => $mask_service][, ignore_failure => $ignore_failure]);
+    disable_stop_service($service_name[, mask_service => $mask_service][, ignore_failure => $ignore_failure]);
 
 Disable and stop the service C<$service_name>.
 Mask it if I<$mask_service> evaluates to true. Default: false
 Raise a failure if I<$ignore_failure> evaluates to true. Default: false
 
 =cut
-sub disable_and_stop_service {
+sub disable_stop_service {
     my ($service_name, %args) = @_;
-    die "disable_and_stop_service(): no service name given" if ($service_name =~ /^ *$/);
+    die "disable_stop_service(): no service name given" if ($service_name =~ /^ *$/);
     $args{mask_service}   //= 0;
     $args{ignore_failure} //= 0;
 

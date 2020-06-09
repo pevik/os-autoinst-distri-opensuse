@@ -27,7 +27,7 @@ use power_action_utils 'prepare_system_shutdown';
 use version_utils 'is_sle';
 use qam;
 use testapi;
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 
 sub run {
     my ($self) = @_;
@@ -84,7 +84,7 @@ sub run {
 
         if (is_sle('=15-sp1')) {
             record_soft_failure('disable lvm2-monitor service due to bsc#1158145');
-            disable_and_stop_service('lvm2-monitor', ignore_failure => 1);
+            disable_stop_service('lvm2-monitor', ignore_failure => 1);
         }
         prepare_system_shutdown;
         type_string "reboot\n";

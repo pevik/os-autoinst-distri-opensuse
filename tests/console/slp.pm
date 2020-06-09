@@ -21,7 +21,7 @@ use testapi;
 use strict;
 use warnings;
 use utils qw(zypper_call systemctl script_retry);
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 
 sub run {
     my ($self) = @_;
@@ -30,7 +30,7 @@ sub run {
     # Let's install slpd
     zypper_call 'in openslp-server';
 
-    disable_and_stop_service($self->firewall) if (script_run("which " . $self->firewall) == 0);
+    disable_stop_service($self->firewall) if (script_run("which " . $self->firewall) == 0);
 
     systemctl 'disable slpd';
     systemctl 'is-enabled slpd', expect_false => 1;

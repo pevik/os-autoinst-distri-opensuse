@@ -4,7 +4,7 @@ use testapi;
 use strict;
 use warnings;
 use utils qw(systemctl file_content_replace clear_console zypper_call clear_console);
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 use mm_network;
 use version_utils;
 
@@ -22,7 +22,7 @@ sub server_configure_network {
 
     if (is_sle('15+') || is_opensuse) {
         record_soft_failure 'boo#1083486 No firewalld service for nfs-kernel-server';
-        disable_and_stop_service('firewalld');
+        disable_stop_service('firewalld');
     }
 }
 

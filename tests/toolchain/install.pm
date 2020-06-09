@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use testapi;
 use utils;
-use Utils::Systemd 'disable_and_stop_service';
+use Utils::Systemd 'disable_stop_service';
 use version_utils 'is_sle';
 use registration;
 
@@ -25,7 +25,7 @@ sub run {
 
     select_console('root-console');
 
-    disable_and_stop_service('packagekit.service', mask_service => 1);
+    disable_stop_service('packagekit.service', mask_service => 1);
 
     if (is_sle '<15') {
         # toolchain channels
