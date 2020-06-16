@@ -42,14 +42,11 @@ sub run {
     # As we use TPM emulator, we should do some modification for tpm2-abrmd service
     # and make it connect to "--tcti=libtss2-tcti-mssim.so"
     assert_script_run "mkdir /etc/systemd/system/tpm2-abrmd.service.d";
-    assert_script_run(
-        "echo \"\$(cat <<EOF
+    assert_script_run("cat <<EOF > /etc/systemd/system/tpm2-abrmd.service.d/emulator.conf
 [Service]
 ExecStart=
 ExecStart=/usr/sbin/tpm2-abrmd --tcti=libtss2-tcti-mssim.so
-EOF
-        )\" > /etc/systemd/system/tpm2-abrmd.service.d/emulator.conf"
-    );
+EOF");
     assert_script_run "systemctl daemon-reload";
     assert_script_run "systemctl enable tpm2-abrmd";
 
