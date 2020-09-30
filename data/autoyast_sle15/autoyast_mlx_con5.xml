@@ -21,160 +21,9 @@
     </addons>
   </suse_register>
 
-  <bootloader>
-    <global>
-      <activate config:type="boolean">true</activate>
-      <append>console=ttyS1,115200 noquiet crashkernel=172M,high crashkernel=72M,low intel_iommu=on iommu=pt pci=realloc</append>
-      <gfxmode>auto</gfxmode>
-      <boot_mbr>true</boot_mbr>
-      <hiddenmenu>false</hiddenmenu>
-      <os_prober>false</os_prober>
-      <serial>serial --unit=1 --speed=115200 --parity=no</serial>
-      <terminal>serial</terminal>
-      <timeout config:type="integer">8</timeout>
-      <trusted_grub>false</trusted_grub>
-    </global>
-    <loader_type>grub2</loader_type>
-  </bootloader>
   <deploy_image>
     <image_installation config:type="boolean">false</image_installation>
   </deploy_image>
-  <firewall>
-    <default_zone>public</default_zone>
-    <enable_firewall config:type="boolean">true</enable_firewall>
-    <log_denied_packets>off</log_denied_packets>
-    <start_firewall config:type="boolean">true</start_firewall>
-    <zones config:type="list">
-      <zone>
-        <description>Unsolicited incoming network packets are rejected. Incoming packets that are related to outgoing network connections are accepted. Outgoing network connections are allowed.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>block</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list"/>
-        <short>Block</short>
-        <sources config:type="list"/>
-        <target>%%REJECT%%</target>
-      </zone>
-      <zone>
-        <description>For computers in your demilitarized zone that are publicly-accessible with limited access to your internal network. Only selected incoming connections are accepted.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>dmz</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list">
-          <service>ssh</service>
-        </services>
-        <short>DMZ</short>
-        <sources config:type="list"/>
-        <target>default</target>
-      </zone>
-      <zone>
-        <description>Unsolicited incoming network packets are dropped. Incoming packets that are related to outgoing network connections are accepted. Outgoing network connections are allowed.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>drop</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list"/>
-        <short>Drop</short>
-        <sources config:type="list"/>
-        <target>DROP</target>
-      </zone>
-      <zone>
-        <description>For use on external networks. You do not trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">true</masquerade>
-        <name>external</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list">
-          <service>ssh</service>
-        </services>
-        <short>External</short>
-        <sources config:type="list"/>
-        <target>default</target>
-      </zone>
-      <zone>
-        <description>For use in home areas. You mostly trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>home</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list">
-          <service>ssh</service>
-          <service>mdns</service>
-          <service>samba-client</service>
-          <service>dhcpv6-client</service>
-        </services>
-        <short>Home</short>
-        <sources config:type="list"/>
-        <target>default</target>
-      </zone>
-      <zone>
-        <description>For use on internal networks. You mostly trust the other computers on the networks to not harm your computer. Only selected incoming connections are accepted.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>internal</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list">
-          <service>ssh</service>
-          <service>mdns</service>
-          <service>samba-client</service>
-          <service>dhcpv6-client</service>
-        </services>
-        <short>Internal</short>
-        <sources config:type="list"/>
-        <target>default</target>
-      </zone>
-      <zone>
-        <description>For use in public areas. You do not trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>public</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list">
-          <service>ssh</service>
-          <service>dhcpv6-client</service>
-        </services>
-        <short>Public</short>
-        <sources config:type="list"/>
-        <target>default</target>
-      </zone>
-      <zone>
-        <description>All network connections are accepted.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>trusted</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list"/>
-        <short>Trusted</short>
-        <sources config:type="list"/>
-        <target>ACCEPT</target>
-      </zone>
-      <zone>
-        <description>For use in work areas. You mostly trust the other computers on networks to not harm your computer. Only selected incoming connections are accepted.</description>
-        <interfaces config:type="list"/>
-        <masquerade config:type="boolean">false</masquerade>
-        <name>work</name>
-        <ports config:type="list"/>
-        <protocols config:type="list"/>
-        <services config:type="list">
-          <service>ssh</service>
-          <service>dhcpv6-client</service>
-        </services>
-        <short>Work</short>
-        <sources config:type="list"/>
-        <target>default</target>
-      </zone>
-    </zones>
-  </firewall>
   <general>
     <ask-list config:type="list"/>
     <mode>
@@ -489,51 +338,6 @@
     <languages/>
   </language>
   <login_settings/>
-  <networking>
-    <dhcp_options>
-      <dhclient_client_id/>
-      <dhclient_hostname_option>AUTO</dhclient_hostname_option>
-    </dhcp_options>
-    <dns>
-      <dhcp_hostname config:type="boolean">true</dhcp_hostname>
-      <domain>qa.suse.de</domain>
-      <hostname>sonic-1</hostname>
-      <resolv_conf_policy>auto</resolv_conf_policy>
-      <write_hostname config:type="boolean">false</write_hostname>
-    </dns>
-    <interfaces config:type="list">
-     <interface>
-        <aliases/>
-        <bootproto>dhcp</bootproto>
-        <bridge>yes</bridge>
-        <bridge_forward_delay>15</bridge_forward_delay>
-        <bridge_ports>eth0</bridge_ports>
-        <bridge_stp>on</bridge_stp>
-        <name>br0</name>
-        <startmode>auto</startmode>
-      </interface>
-      <interface>
-        <aliases/>
-        <bootproto>none</bootproto>
-        <name>eth0</name>
-        <startmode>auto</startmode>
-      </interface>
-    </interfaces>
-    <ipv6 config:type="boolean">true</ipv6>
-    <keep_install_network config:type="boolean">true</keep_install_network>
-    <managed config:type="boolean">false</managed>
-    <net-udev config:type="list">
-      <rule>
-        <name>eth0</name>
-        <rule>ATTR{address}</rule>
-        <value>ac:1f:6b:44:01:10</value>
-      </rule>
-    </net-udev>
-    <routing>
-      <ipv4_forward config:type="boolean">false</ipv4_forward>
-      <ipv6_forward config:type="boolean">false</ipv6_forward>
-    </routing>
-  </networking>
   <ntp-client>
     <ntp_policy>auto</ntp_policy>
     <ntp_servers config:type="list"/>
@@ -571,7 +375,7 @@
             <subvolume>
               <path>usr/local</path>
             </subvolume>
-	  </subvolumes>	
+	  </subvolumes>
           <subvolumes_prefix><![CDATA[]]></subvolumes_prefix>
         </partition>
       </partitions>
@@ -597,7 +401,7 @@
 	  <size>max</size>
         </partition>
       </partitions>
-      <use>all</use>  
+      <use>all</use>
     </drive>
   </partitioning>
   <proxy>
@@ -661,7 +465,6 @@
     </services>
   </services-manager>
   <software>
-    <image/>
     <install_recommended config:type="boolean">true</install_recommended>
     <instsource/>
     <packages config:type="list">
