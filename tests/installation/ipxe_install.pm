@@ -21,6 +21,7 @@ use HTTP::Tiny;
 use IPC::Run;
 use Socket;
 use Time::HiRes 'sleep';
+use WWW::Curl::Simple;
 
 sub ipmitool {
     my ($cmd) = @_;
@@ -109,6 +110,13 @@ boot
 END_BOOTSCRIPT
 
     diag "setting iPXE bootscript to: $bootscript";
+
+    diag "download bootscript for $autoyast";
+    my $curl = WWW::Curl::Simple->new();
+    my $res = $curl->get("$autoyast");
+    diag $res->content;
+    diag "===== END $autoyast";
+
     my $response = HTTP::Tiny->new->request('POST', $url, {content => $bootscript, headers => {'content-type' => 'text/plain'}});
     diag "$response->{status} $response->{reason}\n";
 }
