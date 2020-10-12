@@ -42,7 +42,9 @@ sub run {
     zypper_call('in -l autoconf automake gcc git make');
 
     assert_script_run('git clone ' . $git_repo);
-    assert_script_run("cd $dir && ./run.sh", 2760);
+    record_info("DEBUG READY", "cd $dir && ./run.sh");
+    #assert_script_run("cd $dir && ./run.sh", 2760);
+    sleep;
 }
 
 1;
