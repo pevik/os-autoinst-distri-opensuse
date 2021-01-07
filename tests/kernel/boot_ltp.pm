@@ -50,6 +50,18 @@ sub run {
     upload_logs('/boot/config-$(uname -r)', failok => 1);
     init_ltp_tests($cmd_file);
 
+    script_run('find /lib/modules/');
+    script_run('find /lib/modules/ > modules.txt');
+    upload_logs('modules.txt', failok => 1);
+
+    script_run('find /lib/modules/ -type f | xargs file');
+    script_run('find /lib/modules/ -type f | xargs file > modules-file.txt');
+    upload_logs('modules-file.txt', failok => 1);
+
+    script_run('find /lib/modules/ -type f | xargs ls -lah');
+    script_run('find /lib/modules/ -type f | xargs ls -lah > modules-ls.txt');
+    upload_logs('modules-ls.txt', failok => 1);
+
     # If the command file (runtest file) is set then we dynamically schedule
     # the test and shutdown modules.
     schedule_tests($cmd_file) if $cmd_file;
