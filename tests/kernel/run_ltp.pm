@@ -18,6 +18,7 @@ use testapi qw(is_serial_terminal :DEFAULT);
 use utils;
 use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC);
 use serial_terminal;
+use version_utils 'is_jeos';
 use Mojo::File 'path';
 use Mojo::JSON;
 use LTP::WhiteList 'override_known_failures';
@@ -297,6 +298,7 @@ sub run {
     my $runfile            = $tinfo->runfile;
     my $timeout            = get_var('LTP_TIMEOUT') || 900;
     my $is_posix           = $runfile =~ m/^\s*openposix\s*$/i;
+    my $is_ima             = $runfile =~ m/^\s*ima\s*$/i;
     my $test_result_export = $tinfo->test_result_export;
     my $test               = $tinfo->test;
     my %env                = %{$test_result_export->{environment}};
@@ -311,6 +313,11 @@ sub run {
     my $start_time = thetime();
     # See poo#16648 for disabled LTP networking related tests.
     my $set_rhost = $test->{command} =~ m/^finger01|ftp01|rcp01|rdist01|rlogin01|rpc01|rpcinfo01|rsh01|telnet01/;
+
+    if (!is_jeos) {
+        script_run("f=/opt/ltp/testcases/data/\$(basename $test->{command} .sh)/*.policy; [ -f \"\$f\" ] && cat \$f > /sys/kernel/security/ima/policy && export LTP_REBOOT=1 && echo 'will reboot :)'");
+        script_run("ls -la /opt/ltp/testcases/data/\$(basename $test->{command} .sh)/*.policy"); # FIXME: debug
+    }
 
     if ($set_rhost) {
         assert_script_run(q(export RHOST='127.0.0.1'));
@@ -346,6 +353,15 @@ sub run {
     }
 
     script_run('vmstat -w');
+
+    # FIXME: debug
+    if (script_run('[ "$LTP_REBOOT" ] ') == 0) {
+        script_run("echo 'should reboot'");
+    }
+    # FIXME: debug
+    if (!is_jeos && script_run('[ "$LTP_REBOOT" ] ') == 0) {
+        power_action('reboot', textmode => 1);
+    }
 }
 
 # Only propogate death don't create it from failure [2]
