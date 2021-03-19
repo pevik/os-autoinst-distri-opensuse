@@ -47,6 +47,10 @@ sub run {
     assert_script_run("cd $dir && ./run.sh", 2760);
 }
 
+sub test_flags {
+    return {milestone => 1};
+}
+
 1;
 
 =head1 Example configuration
@@ -55,5 +59,15 @@ sub run {
 
 Git repository for kernel live patching infrastructure tests.
 QA_TEST_KLP_REPO=https://github.com/lpechacek/qa_test_klp.git
+
+=head2 FORCE_PUBLISH_HDD_1
+
+Publish HDD in case of failure to get image with snapshot.
+FORCE_PUBLISH_HDD_1=%DISTRI%-%VERSION%-%ARCH%-%BUILD%-%FLAVOR%@%MACHINE%-klp.qcow2
+
+=head2 MAKETESTSNAPSHOTS
+
+Enable making snapshot
+MAKETESTSNAPSHOTS=1
 
 =cut
