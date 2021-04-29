@@ -114,6 +114,12 @@ sub init_ltp_tests {
     my $is_network = $cmd_file =~ m/^\s*(net|net_stress)\./;
     my $is_ima     = $cmd_file =~ m/^ima$/i;
 
+    if (get_var('LTP_KNOWN_ISSUES')) {
+        bmwqemu::diag("pev: true for LTP_KNOWN_ISSUES: " . get_var('LTP_KNOWN_ISSUES') . " => download_whitelist");
+    } else {
+        bmwqemu::diag("pev: false for LTP_KNOWN_ISSUES");
+    }
+
     download_whitelist if get_var('LTP_KNOWN_ISSUES');
     script_run('env');
 

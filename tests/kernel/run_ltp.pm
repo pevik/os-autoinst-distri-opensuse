@@ -354,6 +354,12 @@ sub run_post_fail {
 
     $self->fail_if_running();
 
+    if ($self->{ltp_tinfo} and get_var('LTP_KNOWN_ISSUES')) {
+        bmwqemu::diag("pev: true for LTP_KNOWN_ISSUES: " . get_var('LTP_KNOWN_ISSUES'));
+    } else {
+        bmwqemu::diag("pev: false for LTP_KNOWN_ISSUES");
+    }
+
     if ($self->{ltp_tinfo} and get_var('LTP_KNOWN_ISSUES') and $self->{result} eq 'fail') {
         override_known_failures($self, $self->{ltp_env}, $self->{ltp_tinfo}->runfile, $self->{ltp_tinfo}->test->{name});
     }
