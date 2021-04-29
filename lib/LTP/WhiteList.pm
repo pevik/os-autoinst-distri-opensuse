@@ -47,7 +47,13 @@ sub download_whitelist {
 sub find_whitelist_entry {
     my ($env, $suite, $test) = @_;
 
-    my $content = path(get_required_var('LTP_KNOWN_ISSUES'))->slurp;
+    my $path = get_var('LTP_KNOWN_ISSUES');
+    unless (defined($path)) {
+        bmwqemu::diag("LTP_KNOWN_ISSUES not defined");
+        return undef;
+    }
+
+    my $content = path($path)->slurp;
     my $issues  = Mojo::JSON::decode_json($content);
     return undef unless $issues;
     return undef unless exists $issues->{$suite};
