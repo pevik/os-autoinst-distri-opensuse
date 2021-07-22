@@ -346,6 +346,7 @@ sub run {
     }
 
     script_run('vmstat -w');
+    script_run('ipcs -m');
 }
 
 # Only propogate death don't create it from failure [2]
