@@ -73,7 +73,8 @@ sub setup_nfs_server {
         assert_script_run("echo 'Defaultvers=3' >> /etc/nfsmount.conf && echo 'Nfsvers=3' >> /etc/nfsmount.conf");
     }
     else {
-        assert_script_run("echo 'NFSD_V4_GRACE=15' >> /etc/sysconfig/nfs && echo 'NFSD_V4_LEASE=15' >> /etc/sysconfig/nfs");
+        my $time = 15;
+        assert_script_run("echo 'NFSD_V4_GRACE=$time' >> /etc/sysconfig/nfs && echo 'NFSD_V4_LEASE=$time' >> /etc/sysconfig/nfs && echo '/etc/sysconfig/nfs=$time' >> /etc/sysconfig/nfs");
     }
     assert_script_run('systemctl restart rpcbind && systemctl enable nfs-server.service && systemctl restart nfs-server');
 }
