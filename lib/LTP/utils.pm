@@ -275,6 +275,11 @@ sub schedule_tests {
         loadtest_kernel 'ltp_init_lvm';
     }
 
+    if ($cmd_file =~ m/irq/) {
+        # Help irqbalance suite to have enough HW interrupts before run
+        loadtest_kernel 'fio';
+    }
+
     parse_runfiles($cmd_file, $test_result_export);
 
     if (check_var('KGRAFT', 1) && check_var('UNINSTALL_INCIDENT', 1)) {
