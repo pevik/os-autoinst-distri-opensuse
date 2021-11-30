@@ -10,18 +10,63 @@ package generate_report;
 use strict;
 use warnings;
 use base 'opensusebasetest';
-use File::Basename;
+use Mojo::JSON;
 use testapi;
 use upload_system_log;
 
+use Data::Dumper; # FIXME: debug
+
+sub display_results {
+    my $self = shift;
+    my $dir ='~/pynfs/$folder';
+
+    my $folder = get_required_var('PYNFS');
+
+    assert_script_run("cd ~/pynfs/$folder");
+    upload_logs('results.json', failok => 1);
+
+    my $content = script_output('cat results.json');
+    bmwqemu::fctwarn("content: '$content'"); # FIXME: debug
+    my $results = Mojo::JSON::decode_json($content);
+
+    bmwqemu::fctwarn("ref \$results->{testcase}: " . ref($results->{testcase})); # FIXME: debug
+    die 'failed to parse results.json' unless $results;
+    die 'results.json is not array' unless (ref($results->{testcase}) eq 'ARRAY');
+
+    record_info('Results', "failures: $results->{failures}\nskipped: $results->{skipped}\ntime: $results->{time}");
+
+    for my $test ($results->{testcase}) {
+        bmwqemu::fctwarn("ref \$test: " . ref($test)); # FIXME: debug
+
+        record_info("classname: $test->{classname}"); bmwqemu::fctwarn("classname: $test->{classname}"); # FIXME: debug
+        record_info("code: $test->{code}"); bmwqemu::fctwarn("code: $test->{code}"); # FIXME: debug
+        record_info("name: $test->{name}"); bmwqemu::fctwarn("name: $test->{name}"); # FIXME: debug
+        record_info("time: $test->{time}"); bmwqemu::fctwarn("time: $test->{time}"); # FIXME: debug
+
+        if (exists($test->{skipped})) {
+            record_info("skipped: $test->{skipped}"); bmwqemu::fctwarn("skipped: $test->{skipped}"); # FIXME: debug
+        }
+
+        if (exists($test->{failure})) {
+            record_info("failure: $test->{failure}"); bmwqemu::fctwarn("failure: $test->{failure}"); # FIXME: debug
+        }
+
+        my $targs = OpenQA::Test::RunArgs->new();
+        $targs->{data} = $test;
+        autotest::loadtest("tests/nfs/pynfs_result.pm", name => $test->{code}, run_args => $targs);
+    }
+}
+
+# FIXME: debug
 sub upload_pynfs_log {
     my $self = shift;
     my $folder = get_required_var('PYNFS');
 
     assert_script_run("cd ~/pynfs/$folder");
 
-    upload_logs('result-raw.txt', failok => 1);
+    upload_logs('results.json', failok => 1);
 
+=cut
     script_run('../showresults.py result-raw.txt > result-analysis.txt');
     upload_logs('result-analysis.txt', failok => 1);
 
@@ -32,6 +77,7 @@ sub upload_pynfs_log {
         $self->result("fail");
         record_info("failed tests", script_output('cat result-fail.txt'), result => 'fail');
     }
+=cut
 }
 
 sub upload_cthon04_log {
@@ -76,7 +122,7 @@ sub run {
     $self->select_serial_terminal;
 
     if (get_var("PYNFS")) {
-        $self->upload_pynfs_log();
+        $self->display_results();
     }
     elsif (get_var("CTHON04")) {
         $self->upload_cthon04_log();
