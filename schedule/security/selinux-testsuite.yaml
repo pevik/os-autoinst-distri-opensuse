@@ -1,0 +1,23 @@
+name:           selinux-testsuite
+description:    >
+  Maintainer: pvorel@suse.cz
+  Schedule for selinux-testsuite tests
+
+#vars:
+  #EXTRABOOTPARAMS_BOOT_LOCAL: security=selinux selinux=1 enforcing=0
+  #EXTRABOOTPARAMS_BOOT_LOCAL: security=selinux
+
+conditional_schedule:
+  run:
+    SELINUX_TESTSUITE_RUN:
+      'prove':
+        # will load run_prove
+        - security/selinux/selinux_testsuite/prepare_prove
+      'make':
+        - security/selinux/selinux_testsuite/run_make
+
+schedule:
+  - boot/boot_to_desktop
+  - security/selinux/selinux_setup
+  - security/selinux/selinux_testsuite/install
+  - '{{run}}'
