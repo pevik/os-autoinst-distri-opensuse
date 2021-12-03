@@ -14,7 +14,7 @@ use Mojo::JSON;
 use testapi;
 use upload_system_log;
 
-sub display_results {
+sub pynfs_display_results {
     my $self = shift;
     my $skip = "";
     my $pass = "";
@@ -53,7 +53,7 @@ sub display_results {
     }
 }
 
-sub upload_cthon04_log {
+sub cthon04_upload_logs {
     my $self = shift;
     assert_script_run('cd ~/cthon04');
     if (script_output("grep 'All tests completed' ./result* | wc -l") =~ '4') {
@@ -95,11 +95,12 @@ sub run {
     $self->select_serial_terminal;
 
     if (get_var("PYNFS")) {
-        $self->display_results();
+        $self->pynfs_display_results();
     }
     elsif (get_var("CTHON04")) {
-        $self->upload_cthon04_log();
+        $self->cthon04_upload_logs();
     }
+
     upload_system_logs();
 
     autotest::loadtest("tests/shutdown/shutdown.pm");
