@@ -11,24 +11,19 @@ use strict;
 use warnings;
 use base 'opensusebasetest';
 use Mojo::JSON;
+use File::Basename 'basename';
 use testapi;
 use upload_system_log;
 
 sub pynfs_display_results {
-    my $self = shift;
+    my ($self, $log) = @_;
+    my $content = script_output("cat $log");
+    my $results = Mojo::JSON::decode_json($content);
     my $skip = "";
     my $pass = "";
 
-    my $folder = get_required_var('PYNFS');
-
-    assert_script_run("cd ~/pynfs/$folder");
-    upload_logs('results.json', failok => 1);
-
-    my $content = script_output('cat results.json');
-    my $results = Mojo::JSON::decode_json($content);
-
-    die 'failed to parse results.json' unless $results;
-    die 'results.json is not array' unless (ref($results->{testcase}) eq 'ARRAY');
+    die "failed to parse '$log'" unless $results;
+    die "'$log' is not array" unless (ref($results->{testcase}) eq 'ARRAY');
 
     record_info('Results', "failures: $results->{failures}\nskipped: $results->{skipped}\ntime: $results->{time}");
 
@@ -51,6 +46,33 @@ sub pynfs_display_results {
         $targs->{data} = $test;
         autotest::loadtest("tests/nfs/pynfs_failed.pm", name => $test->{code}, run_args => $targs);
     }
+}
+
+sub pynfs_upload_logs {
+    my ($self, $log) = @_;
+
+    my $log_worker = Mojo::File::path("ulogs/" . basename($log));
+
+    mkdir($log_worker->dirname) if (!-d $log_worker->dirname);
+    upload_logs($log, log_name => $log_worker->basename, failok => 1);
+    bmwqemu::fctwarn("\$log_worker->to_string: '$log_worker->to_string', exists: " . (-e $log_worker->to_string ? "yes": "no")); # FIXME: debug
+
+    return unless -e $log_worker->to_string;
+
+    local @INC = ($ENV{OPENQA_LIBPATH} // testapi::OPENQA_LIBPATH, @INC);
+    eval {
+        require OpenQA::Parser::Format::XUnit;
+
+        my $parser = OpenQA::Parser::Format::XUnit->new()->load($log_worker->to_string);
+
+        $parser->write_output(bmwqemu::result_dir());
+        $parser->write_test_result(bmwqemu::result_dir());
+
+        $parser->tests->each(sub {
+                $autotest::current_test->register_extra_test_results([$_->to_openqa]);
+        });
+    };
+    die $@ if $@;
 }
 
 sub cthon04_upload_logs {
@@ -94,8 +116,14 @@ sub run {
     my $self = shift;
     $self->select_serial_terminal;
 
-    if (get_var("PYNFS")) {
-        $self->pynfs_display_results();
+    my $pynfs = get_var('PYNFS');
+
+    if ($pynfs) {
+        my $dir = "~/pynfs/$pynfs";
+        my $log = "$dir/results.json";
+        assert_script_run("cd $dir");
+        $self->pynfs_display_results($log);
+        $self->pynfs_upload_logs($log);
     }
     elsif (get_var("CTHON04")) {
         $self->cthon04_upload_logs();
