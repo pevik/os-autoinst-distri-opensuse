@@ -36,11 +36,17 @@ while [ "$#" -gt 0 ]; do
 done
 
 for test in $MODULES ; do
-    file="`git ls-files *$test*`"
-
     # Don't check non-existing modules it as it was either renamed or removed
     # also check only for tests in tests/ directory
+	# FIXME: debug
+    echo "git ls-files "*$test*""
+    git ls-files "*$test*"
+    git ls-files "*$test*" | grep -q ^tests/ || echo "'$test' not test => continue"
+	# FIXME: debug
+
     git ls-files "*$test*" | grep -q ^tests/ || continue
+
+	echo "testing '$test'" # FIXME: debug
 
     t=$(basename $test | sed -e 's@\.pm$@@')
     t_dir=$(dirname $test | sed -e 's@tests/\(.*\)$@\1@')
