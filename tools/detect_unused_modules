@@ -1,5 +1,8 @@
 #!/bin/sh -e
 
+echo "getconf ARG_MAX" # FIXME: debug
+getconf ARG_MAX # FIXME: debug
+
 usage="Detect test modules usage in the schedules, inluding main.pm and yaml schedules.
 
 Usage: $(basename "$0") { -a | -m MODULES } | -h
