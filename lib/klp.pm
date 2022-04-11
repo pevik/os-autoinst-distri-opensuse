@@ -12,7 +12,7 @@ use Exporter 'import';
 
 use testapi;
 use utils;
-use version_utils 'is_sle';
+use version_utils qw(is_leap is_sle);
 
 our @EXPORT = qw(
   install_klp_product is_klp_pkg find_installed_klp_pkg klp_pkg_eq
@@ -351,23 +351,33 @@ sub verify_klp_pkg_patch_is_active {
     # livepatch git revision matches the one from the package
     # description.
     my $output = script_output("uname -v");
-    my $uname_v_gitrev;
+    my $uname_pattern = '\([a-z0-9]+/(?:lp|kGraft)\)$';
+    my $uses_gitrev = is_leap('<15.4') || is_sle('<15-sp4');
+    bmwqemu::fctwarn("pev: uses_gitrev: $uses_gitrev"); # FIXME: debug
+
     chomp($output);
-    if ($output =~ m,\([a-z0-9]+/(?:lp|kGraft)-([a-z0-9]+)\)$,i) {
-        $uname_v_gitrev = lc($1);
+
+    if ($uses_gitrev) {
+        $uname_pattern = '\([a-z0-9]+/(?:lp|kGraft)-([a-z0-9]+)\)$';
+        bmwqemu::fctwarn("pev: update pattern"); # FIXME: debug
     }
-    else {
+
+    unless ($output =~ m,$uname_pattern,i) {
         die "Unable to recognize livepatch tag in 'uname -v' output: '$output'";
     }
 
-    my $pkgdesc_gitrev = klp_pkg_get_gitrev($klp_pkg);
-    my $pkgdesc_gitrev_len = length($pkgdesc_gitrev);
-    my $uname_v_gitrev_len = length($uname_v_gitrev);
-    if (($pkgdesc_gitrev_len > $uname_v_gitrev_len &&
-            substr($pkgdesc_gitrev, 0, $uname_v_gitrev_len) ne $uname_v_gitrev) ||
-        ($pkgdesc_gitrev_len <= $uname_v_gitrev_len &&
-            $pkgdesc_gitrev ne substr($uname_v_gitrev, 0, $pkgdesc_gitrev_len))) {
-        die "Livepatch package GIT rev '$pkgdesc_gitrev' doesn't match '$uname_v_gitrev' from 'uname -v'";
+    if ($uses_gitrev) {
+        my $uname_v_gitrev = lc($1);
+        bmwqemu::fctwarn("pev: uname_v_gitrev: '$uname_v_gitrev'"); # FIXME: debug
+        my $pkgdesc_gitrev = klp_pkg_get_gitrev($klp_pkg);
+        my $pkgdesc_gitrev_len = length($pkgdesc_gitrev);
+        my $uname_v_gitrev_len = length($uname_v_gitrev);
+        if (($pkgdesc_gitrev_len > $uname_v_gitrev_len &&
+                substr($pkgdesc_gitrev, 0, $uname_v_gitrev_len) ne $uname_v_gitrev) ||
+            ($pkgdesc_gitrev_len <= $uname_v_gitrev_len &&
+                $pkgdesc_gitrev ne substr($uname_v_gitrev, 0, $pkgdesc_gitrev_len))) {
+            die "Livepatch package GIT rev '$pkgdesc_gitrev' doesn't match '$uname_v_gitrev' from 'uname -v'";
+        }
     }
 
     # Verify that the livepatch module has been properly signed by
