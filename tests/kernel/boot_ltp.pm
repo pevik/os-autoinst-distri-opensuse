@@ -38,6 +38,16 @@ sub run {
 
     $self->select_serial_terminal;
 
+    record_info('net.ipv4.ping_group_range', script_output('sysctl net.ipv4.ping_group_range'));
+
+    record_info('ip', script_output('ip -6 addr'));
+    my $ifname = script_output('ip -6 link |grep "^[0-9]:" |grep -v lo: | head -1 | awk "{print \$2}" | sed s/://');
+    my $addr = script_output("ip -6 addr show $ifname | grep 'scope link' | head -1 | awk '{ print \$2 }' | cut -d/ -f1");
+    my $cmd = "ping6 -c2 $addr%$ifname; echo \$?";
+    record_info('ping %', "\$ $cmd\n" . script_output($cmd));
+    $cmd = "ping6 -c2 $addr -I$ifname; echo \$?";
+    record_info('ping -I', "\$ $cmd\n" . script_output($cmd));
+
     # Debug code for poo#81142
     script_run('gzip -9 </dev/fb0 >framebuffer.dat.gz');
     upload_logs('framebuffer.dat.gz', failok => 1);
