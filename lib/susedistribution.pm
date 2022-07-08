@@ -15,6 +15,7 @@ use utils qw(
   type_string_very_slow
   zypper_call
 );
+use backend::qemu;
 use version_utils qw(is_hyperv_in_gui is_sle is_leap is_svirt_except_s390x is_tumbleweed is_opensuse);
 use x11utils qw(desktop_runner_hotkey ensure_unlocked_desktop);
 use Utils::Backends;
@@ -428,7 +429,11 @@ sub init_consoles {
 
     if (is_qemu) {
         $self->add_console('root-virtio-terminal', 'virtio-terminal', {});
-        $self->add_console('user-virtio-terminal', 'virtio-terminal', {});
+
+        $self->add_console('user-virtio-terminal', 'virtio-terminal',
+            backend::qemu->can('QEMU_BACKEND_VERSION') ?
+              {socked_path => cwd() . '/virtio_console_user'} : {});
+
         for (my $num = 1; $num < get_var('VIRTIO_CONSOLE_NUM', 1); $num++) {
             $self->add_console('root-virtio-terminal' . $num, 'virtio-terminal', {socked_path => cwd() . '/virtio_console' . $num});
         }
