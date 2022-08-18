@@ -38,6 +38,10 @@ sub run {
 
     $self->select_serial_terminal;
 
+    record_info('unprivileged_bpf_disabled', script_output('sysctl kernel.unprivileged_bpf_disabled'));
+    record_info('unprivileged_bpf_disabled (cat)', script_output('cat /proc/sys/kernel/unprivileged_bpf_disabled'));
+    record_info('id', script_output('id'));
+
     # Debug code for poo#81142
     script_run('gzip -9 </dev/fb0 >framebuffer.dat.gz');
     upload_logs('framebuffer.dat.gz', failok => 1);
