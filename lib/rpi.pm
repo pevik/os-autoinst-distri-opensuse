@@ -19,13 +19,15 @@ our @EXPORT = 'enable_tpm_slb9670';
 sub enable_tpm_slb9670 {
     my ($self) = @_;
     my $module = "tpm_tis_spi";
+    my $extraconfig = '/boot/efi/extraconfig.txt';
 
-    assert_script_run('echo -e "dtparam=spi=on\ndtoverlay=tpm-slb9670" >> /boot/efi/extraconfig.txt');
-    assert_script_run('cat /boot/efi/extraconfig.txt');
+    assert_script_run('echo -e "dtparam=spi=on\ndtoverlay=tpm-slb9670" >> ' . $extraconfig);
+    record_info('extraconfig', script_output("cat $extraconfig"));
     assert_script_run("echo '$module' > /etc/modules-load.d/tpm.conf");
     power_action('reboot', textmode => 1);
 
-    $self->wait_boot(nologin => 1, bootloader_time => 60);
+    # Add some timeout to wait for reboot
+    sleep(60);
 
     # Restore SSH connection
     reset_consoles;

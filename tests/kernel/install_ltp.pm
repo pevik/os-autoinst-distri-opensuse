@@ -361,6 +361,15 @@ sub run {
 
     $self->enable_tpm_slb9670 if (get_var('MACHINE') =~ /RPi/);
 
+    if (get_var('MACHINE') =~ /RPi/) {
+        record_info('/boot', script_output("find /boot"));
+        record_info('cat config', script_output('for i in /boot/*/config.txt; do echo $i; cat $i; done'));
+        record_info('cat extraconfig', script_output('for i in /boot/*/extraconfig.txt; do echo $i; cat $i; done'));
+
+        assert_script_run('echo "ima_policy=tcb" >> /boot/efi/cmdline.txt');
+        record_info('cmdline', script_output("cat /boot/efi/cmdline.txt"));
+    }
+
     $self->select_serial_terminal;
 
     if (script_output('cat /sys/module/printk/parameters/time') eq 'N') {
