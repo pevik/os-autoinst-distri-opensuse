@@ -197,6 +197,11 @@ sub prepare_ltp_git {
     my $configure = "./configure --prefix=$prefix";
     my $extra_flags = get_var('LTP_EXTRA_CONF_FLAGS', '--with-open-posix-testsuite --with-realtime-testsuite');
 
+    $url = 'https://github.com/pevik/ltp';
+    $rel = 'ltp-202209.2022-09-30.pre-release';
+    bmwqemu::fctwarn("url: '$url', rel: '$rel'");
+    record_info("url: '$url', rel: '$rel'");
+
     $rel = "-b $rel" if ($rel);
 
     script_run('rm -rf ltp');
@@ -355,6 +360,11 @@ sub run {
     my $inst_ltp = get_var 'INSTALL_LTP';
     my $cmd_file = get_var('LTP_COMMAND_FILE');
     my $grub_param = 'ignore_loglevel';
+
+
+    $inst_ltp = "from_git";
+    bmwqemu::fctwarn("inst_ltp: $inst_ltp");
+    record_info("inst_ltp: $inst_ltp");
 
     if ($inst_ltp !~ /(repo|git)/i) {
         die 'INSTALL_LTP must contain "git" or "repo"';
