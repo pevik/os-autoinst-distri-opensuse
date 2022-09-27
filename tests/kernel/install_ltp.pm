@@ -356,6 +356,11 @@ sub run {
     my $cmd_file = get_var('LTP_COMMAND_FILE');
     my $grub_param = 'ignore_loglevel';
 
+
+    $inst_ltp = "from_git";
+    bmwqemu::fctwarn("inst_ltp: $inst_ltp");
+    record_info("inst_ltp: $inst_ltp");
+
     if ($inst_ltp !~ /(repo|git)/i) {
         die 'INSTALL_LTP must contain "git" or "repo"';
     }
