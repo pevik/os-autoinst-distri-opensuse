@@ -316,6 +316,11 @@ sub run {
     else {
         enter_cmd("($cmd_text) | tee /dev/$serialdev");
     }
+
+    bmwqemu::fctwarn("pev: sleep"); # FIXME: debug
+    script_run('echo sleep');
+    sleep;
+
     my $test_log = wait_serial(qr/$fin_msg\d+/, $timeout, 0, record_output => 1);
     my ($timed_out, $result_export) = $self->record_ltp_result($runfile, $test, $test_log, $fin_msg, thetime() - $start_time, $is_posix);
 
