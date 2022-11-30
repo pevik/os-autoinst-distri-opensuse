@@ -100,6 +100,7 @@ our @EXPORT = qw(
   test_case
   remount_tmp_if_ro
   detect_bsc_1063638
+  download_file_wget
   @all_tests_results
 );
 
@@ -2488,6 +2489,13 @@ This method will create a softfail if such a problem is detected.
 sub detect_bsc_1063638 {
     # Detect bsc#1063638
     record_soft_failure 'bsc#1063638' if (script_run('ps x | grep "btrfs-\(scrub\|balance\|trim\)"') == 0);
+}
+
+sub download_file_wget
+{
+    my ($url) = @_;
+    record_info('DOWNLOAD', $url);
+    assert_script_run("wget $url", timeout => 600);
 }
 
 1;
