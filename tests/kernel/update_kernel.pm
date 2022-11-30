@@ -21,6 +21,7 @@ use klp;
 use power_action_utils 'power_action';
 use repo_tools 'add_qa_head_repo';
 use Utils::Backends;
+use File::Basename;
 
 sub check_kernel_package {
     my $kernel_name = shift;
@@ -354,6 +355,16 @@ sub update_kgraft {
     }
 }
 
+sub install_rpm {
+    my $url = shift;
+    my $file = basename($url);
+
+    record_info('FILE', $file);
+    remove_kernel_packages;
+    download_file_wget($url);
+    assert_script_run("rpm -Uvih --force $file");
+}
+
 sub install_kotd {
     my $repo = shift;
     fully_patch_system;
@@ -391,8 +402,9 @@ sub run {
     my $repo = get_var('KOTD_REPO');
     my $incident_id = undef;
     my $kernel_package = 'kernel-default';
+    my $rpm_url = get_var('KERNEL_RPM_URL');
 
-    unless ($repo) {
+    unless ($repo || $rpm_url) {
         $repo = get_required_var('INCIDENT_REPO');
         $incident_id = get_required_var('INCIDENT_ID');
     }
@@ -437,6 +449,9 @@ sub run {
     }
     elsif (get_var('KOTD_REPO')) {
         install_kotd($repo);
+    }
+    elsif ($rpm_url) {
+        install_rpm($rpm_url);
     }
     else {
         update_kernel($repo, $incident_id);
@@ -491,3 +506,7 @@ kernel-default-base instead. Then update kernel as in the default case.
 
 Repository URL for installing kernel of the day packages. Update system and
 install new kernel using the simplified installation method.
+
+=head2 KERNEL_RPM_URL
+
+Any random kernel from net (for debugging).

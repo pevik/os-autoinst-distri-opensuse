@@ -29,7 +29,9 @@ sub load_kernel_tests {
 
     loadtest_kernel "../installation/bootloader" if is_pvm;
 
-    loadtest_kernel 'update_kernel' if (get_var('KOTD_REPO'));
+    if (get_var('KERNEL_RPM_URL') || get_var('KOTD_REPO')) {
+        loadtest_kernel 'update_kernel';
+    }
 
     if (get_var('INSTALL_LTP')) {
         if (get_var('INSTALL_KOTD')) {
