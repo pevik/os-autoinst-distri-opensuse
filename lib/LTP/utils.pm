@@ -84,6 +84,9 @@ sub log_versions {
     my $ver_linux_log = '/tmp/ver_linux_before.txt';
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
 
+    script_run("rpm -qa |grep kernel 2>&1");
+    script_run('rpm -qf /boot/config-$(uname -r) 2>&1');
+
     script_run("rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1");
     upload_logs($kernel_pkg_log, failok => 1);
 
