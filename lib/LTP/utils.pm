@@ -14,7 +14,7 @@ use Utils::Backends;
 use autotest;
 use LTP::WhiteList;
 use LTP::TestInfo 'testinfo';
-use version_utils qw(is_openstack is_jeos);
+use version_utils qw(is_alp is_jeos is_openstack);
 use File::Basename 'basename';
 
 our @EXPORT = qw(
@@ -79,7 +79,7 @@ sub get_ltp_version_file {
 
 sub log_versions {
     my $report_missing_config = shift;
-    my $kernel_pkg = is_jeos || get_var('KERNEL_BASE') ? 'kernel-default-base' : 'kernel-default';
+    my $kernel_pkg = is_alp || is_jeos || get_var('KERNEL_BASE') ? 'kernel-default-base' : 'kernel-default';
     my $kernel_pkg_log = '/tmp/kernel-pkg.txt';
     my $ver_linux_log = '/tmp/ver_linux_before.txt';
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
