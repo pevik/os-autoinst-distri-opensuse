@@ -39,6 +39,7 @@ sub run {
 
     assert_script_run('git config --global http.sslVerify false');
     assert_script_run('git clone ' . $git_repo);
+    assert_script_run('echo "file kernel/livepatch/* +p" > /sys/kernel/debug/dynamic_debug/control');
     assert_script_run("cd $dir && ./run.sh", 2760);
 }
 
