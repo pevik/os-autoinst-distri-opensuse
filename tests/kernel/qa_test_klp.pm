@@ -16,6 +16,7 @@ use testapi;
 use serial_terminal 'select_serial_terminal';
 use utils;
 use registration;
+use Utils::Systemd qw(disable_and_stop_service systemctl);
 use version_utils 'is_sle';
 
 sub run {
@@ -36,6 +37,10 @@ sub run {
 
     add_suseconnect_product("sle-sdk") if (is_sle('<12-SP5'));
     zypper_call('in -l autoconf automake gcc git make');
+
+    record_info('chronyd before', script_output('systemctl status chronyd.service', proceed_on_failure => 1));
+    disable_and_stop_service('chronyd.service', ignore_failure => 1);
+    record_info('chronyd stopped', script_output('systemctl status chronyd.service', proceed_on_failure => 1));
 
     assert_script_run('git config --global http.sslVerify false');
     assert_script_run('git clone ' . $git_repo);
