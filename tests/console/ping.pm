@@ -25,6 +25,9 @@ sub run {
     my $capability;
 
     select_serial_terminal;
+    record_info("Fail", "Unknown failure on XXX, maybe related to: bsc#1200617, bsc#1195826, bsc#1196840, bsc#1199918, bsc#1199926, bsc#1199927",
+        result => 'fail');
+    $self->result("fail");
 
     zypper_call('in iputils libcap-progs sudo');
     $capability = script_output('getcap $(which ping)', proceed_on_failure => 1);
