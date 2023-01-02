@@ -25,6 +25,7 @@ sub run {
     my $capability;
 
     select_serial_terminal;
+    record_info("fail", "Just fail :)", result => 'fail');
 
     zypper_call('in iputils libcap-progs sudo');
     $capability = script_output('getcap $(which ping)', proceed_on_failure => 1);
