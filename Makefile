@@ -132,6 +132,7 @@ PERLCRITIC=PERL5LIB=tools/lib/perlcritic:$$PERL5LIB perlcritic --stern --include
 
 .PHONY: perlcritic
 perlcritic: tools/lib/
+	perlcritic --version; \
 	${PERLCRITIC} $$(git ls-files -- '*.p[ml]' ':!:data/')
 
 .PHONY: test-unused-modules-changed
