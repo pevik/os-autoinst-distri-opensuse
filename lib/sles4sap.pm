@@ -174,7 +174,7 @@ arguments, and sets the internal variables for B<$sid>, B<$instance> and B<$sapa
 accordingly. It also sets accessors that depend on B<$sid> and B<$instance>
 as well as the product type. Returns the value of B<$sapadmin>.
 
-=cut 
+=cut
 
 sub set_sap_info {
     my ($self, $sid_env, $instance_env) = @_;
@@ -201,6 +201,7 @@ permissions to the SAP admin user.
 =cut
 
 sub user_change {
+    record_info("pev:user_change");
     # Allow SAP Admin user to inform status via $testapi::serialdev
     # Note: need to be keep here and during product installation to
     #       ensure compatibility with older generated images
@@ -217,6 +218,9 @@ sub user_change {
 
     # We need to change the 'serial_term_prompt' value for 'wait_serial'
     my $serial_term_prompt = "$sapadmin> ";
+    record_info("pev:99", "serial_term_prompt: '$serial_term_prompt'");
+    script_run("echo \"serial_term_prompt: '$serial_term_prompt'\"");
+
     enter_cmd(qq/PS1="$serial_term_prompt"/);
     wait_serial(qr/PS1="$serial_term_prompt"/) if testapi::is_serial_terminal;
     $testapi::distri->{serial_term_prompt} = "$serial_term_prompt";
@@ -726,7 +730,7 @@ sub reboot {
 Register current HANA node to the node specified by the named argument B<node>. With the named
 argument B<proceed_on_failure> set to 1, method will use B<script_run> and return the return
 value of the B<script_run> call even if sr_register command fails, otherwise B<assert_script_run>
-is used and the method croaks on failure. 
+is used and the method croaks on failure.
 
 =cut
 

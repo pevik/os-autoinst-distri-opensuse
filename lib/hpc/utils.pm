@@ -61,10 +61,13 @@ sub relogin_root {
     my $self = shift;
     record_info 'relogin', 'user needs to logout and login back to trigger scripts which set env variales and others. Switch to root-console';
     select_console "root-console";
+    record_info("pev:0");
     type_string('pkill -u root', lf => 1);
     record_info "pkill done";
     $self->wait_boot_textmode(ready_time => 180);
+    record_info("pev:1", "select_serial_terminal");
     select_serial_terminal();
+    record_info("pev:2", "select_serial_terminal");
 
     # Make sure that sshd is up. (TODO: investigate)
     systemctl('restart sshd');
@@ -83,6 +86,9 @@ When subroutine returns immediately returns 1 to indicate that no relogin has oc
 
 sub setup_scientific_module {
     my ($self) = @_;
+    bmwqemu::fctwarn("pev: HPC_LIB: '" . get_var('HPC_LIB', '') . "'");
+    script_run("echo 'pev: HPC_LIB: " . get_var('HPC_LIB', '') . "'");
+
     return 1 unless get_var('HPC_LIB', '');
     my $mpi = get_required_var('MPI');
 

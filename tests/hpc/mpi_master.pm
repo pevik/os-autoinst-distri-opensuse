@@ -30,14 +30,25 @@ sub run ($self) {
         bin => '/home/bernhard/bin',
         hpc_lib => '/usr/lib/hpc',
     );
+    script_run("sudo -u $testapi::username echo \"PS1: '\$PS1'\"");
     script_run("sudo -u $testapi::username mkdir $exports_path{bin}");
     zypper_call("in $mpi-gnu-hpc $mpi-gnu-hpc-devel python3-devel");
     my $need_restart = $self->setup_scientific_module();
+    bmwqemu::fctwarn("pev: need_restart: $need_restart, HPC_LIB: '" . get_var('HPC_LIB', '') . "'");
+    script_run("echo 'pev: need_restart: $need_restart, HPC_LIB: " . get_var('HPC_LIB', '') . "'");
+    record_info("pev:3", "select_serial_terminal, need_restart: $need_restart, HPC_LIB: '" . get_var('HPC_LIB', '') . "'");
     $self->relogin_root if $need_restart;
+    record_info("pev:4", "select_serial_terminal");
+    script_run("echo 'pev:4'");
     $self->setup_nfs_server(\%exports_path);
 
+    record_info("pev:5");
     type_string('pkill -u root', lf => 1);
+    record_info("pev:6 (here)");
+    script_run('echo "pev:6, PS1: $PS1"');
     select_serial_terminal(0);
+    script_run("echo 'pev:7'");
+    record_info("pev:7");
     # for <15-SP2 the openmpi2 module is named simply openmpi
     $mpi = 'openmpi' if ($mpi =~ /openmpi2|openmpi3|openmpi4/);
 
@@ -59,8 +70,11 @@ sub run ($self) {
     systemctl 'restart nfs-server';
     # And login as normal user to run the tests
     # NOTE: This behaves weird. Need another solution apparently
+    record_info("pev:8");
     type_string('pkill -u root');
+    record_info("pev:9");
     select_serial_terminal(0);
+    record_info("pev:10");
     # load mpi after all the relogins
     assert_script_run "module load gnu $mpi";
     script_run "module av";
