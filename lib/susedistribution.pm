@@ -426,6 +426,8 @@ sub init_consoles {
         set_var('S390_ZKVM', 1);
         set_var('SVIRT_VNC_CONSOLE', 'x11');
     }
+    bmwqemu::fctwarn("OpenQA::Isotovideo::Interface::version: " . $OpenQA::Isotovideo::Interface::version); # FIXME: debug
+    bmwqemu::fctwarn("isotovideo::get_version(): " . isotovideo::get_version()); # FIXME: debug
 
     if (is_qemu) {
         $self->add_console('root-virtio-terminal', 'virtio-terminal', {});
