@@ -118,6 +118,10 @@ sub log_versions {
         record_soft_failure 'boo#1189879 missing kernel config';
     }
 
+    record_info('nft', script_output('nft -V'));
+    record_info('nft pkg', script_output('rpm -qa | grep nft'));
+    record_info('iptables pkg', script_output('rpm -qa | grep iptables'));
+
     record_info('KERNEL VERSION', script_output('uname -a'));
     record_info('KERNEL DEFAULT PKG', script_output("cat $kernel_pkg_log", proceed_on_failure => 1));
     record_info('KERNEL EXTRA PKG', script_output('rpm -qi kernel-default-extra', proceed_on_failure => 1));
