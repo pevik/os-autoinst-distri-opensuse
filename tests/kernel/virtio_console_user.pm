@@ -8,28 +8,29 @@
 
 use Mojo::Base 'opensusebasetest';
 use testapi;
-use serial_terminal 'select_serial_terminal';
+use serial_terminal qw(select_serial_terminal select_user_serial_terminal);
 use utils;
 
+sub test_user {
+    record_info('non-root user');
+    select_user_serial_terminal;
+    record_info('id non-root', script_output('id'));
+    assert_script_run('[ $(id -u) = 1000 ]');
+}
+
+sub test_root {
+    record_info('root user');
+    select_serial_terminal;
+    record_info('id root', script_output('id'));
+    assert_script_run('[ $(id -u) = 0 ]');
+}
+
 sub run {
-    my $self = shift;
-
-    record_info('root user');
-    select_serial_terminal;
     record_info('getty', script_output('systemctl | grep serial-getty'));
-    assert_script_run('id');
-
-    record_info('non-root user');
-    select_serial_terminal(0);
-    assert_script_run('id');
-
-    record_info('root user');
-    select_serial_terminal;
-    assert_script_run('id');
-
-    record_info('non-root user');
-    select_serial_terminal(0);
-    assert_script_run('id');
+    test_root;
+    test_user;
+    test_root;
+    test_user;
 }
 
 1;
