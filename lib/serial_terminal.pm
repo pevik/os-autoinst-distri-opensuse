@@ -86,7 +86,9 @@ sub prepare_serial_console {
         }
 
         # user-virtio-terminal
-        add_serial_console($console);
+        # DEBUG: disable to see jeos-main@svirt-xen-hvm result
+        # https://github.com/os-autoinst/os-autoinst-distri-opensuse/commit/4a89bfb0f44e961b9c5a9b9f5d152391c0bb40d3#r98153902
+        #add_serial_console($console);
     }
 
     record_info('getty after', script_output('systemctl | grep serial-getty'));
