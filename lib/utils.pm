@@ -728,6 +728,9 @@ sub zypper_ar {
     my $params = $args{params} // '';
     my $no_gpg_check = $args{no_gpg_check} // '';
 
+    script_run('update-ca-certificates');
+    zypper_call('up ca-certificates');
+
     $no_gpg_check = $no_gpg_check ? "--no-gpgcheck" : "";
     my $prioarg = defined($priority) && !is_sle('<=12') ? "-p $priority" : "";
     my $cmd_ar = "--gpg-auto-import-keys ar -f $prioarg $no_gpg_check $params $url";
