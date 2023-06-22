@@ -16,6 +16,7 @@ use LTP::WhiteList;
 use LTP::TestInfo 'testinfo';
 use version_utils qw(is_jeos is_openstack is_rt);
 use File::Basename 'basename';
+use power_action_utils 'power_action';
 use Utils::Architectures;
 
 our @EXPORT = qw(
@@ -23,6 +24,7 @@ our @EXPORT = qw(
   get_ltp_openposix_test_list_file
   get_ltp_version_file
   init_ltp_tests
+  ltp_reboot
   loadtest_kernel
   log_versions
   prepare_ltp_env
@@ -350,6 +352,11 @@ sub parse_runfiles {
                 $cmd_pattern, $cmd_exclude, $test_result_export, $suffix);
         }
     }
+}
+
+sub ltp_reboot {
+    power_action('reboot', textmode => 1) unless is_jeos;
+    loadtest_kernel 'boot_ltp';
 }
 
 1;

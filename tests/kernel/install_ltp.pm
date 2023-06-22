@@ -17,7 +17,6 @@ use serial_terminal 'select_serial_terminal';
 use registration;
 use utils;
 use bootloader_setup qw(add_custom_grub_entries add_grub_cmdline_settings);
-use power_action_utils 'power_action';
 use repo_tools 'add_qa_head_repo';
 use upload_system_log;
 use version_utils qw(is_jeos is_opensuse is_released is_sle is_leap is_tumbleweed is_rt is_transactional is_alp);
@@ -445,8 +444,7 @@ sub run {
     # boot_ltp will schedule the tests and shutdown_ltp if there is a command
     # file
     if (get_var('LTP_INSTALL_REBOOT') || (is_transactional && $cmd_file)) {
-        power_action('reboot', textmode => 1) unless is_jeos;
-        loadtest_kernel 'boot_ltp';
+        ltp_reboot;
     } elsif ($cmd_file) {
         assert_secureboot_status(1) if get_var('SECUREBOOT');
         prepare_ltp_env() if (is_sle('<12'));

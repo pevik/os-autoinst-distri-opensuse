@@ -16,6 +16,7 @@ use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC);
 use serial_terminal;
 use Mojo::File 'path';
 use Mojo::JSON;
+use LTP::utils;
 use LTP::WhiteList;
 require bmwqemu;
 
@@ -332,6 +333,10 @@ sub run {
     }
 
     script_run('vmstat -w');
+
+    if (get_var('LTP_REBOOT_AFTER_TEST')) {
+        ltp_reboot;
+    }
 }
 
 # Only propogate death don't create it from failure [2]
@@ -417,6 +422,10 @@ LTP test itself.
 
 Comma separated list of environment variables to be set for tests.
 E.g.: key=value,key2="value with spaces",key3='another value with spaces'
+
+=head2 LTP_REBOOT_AFTER_TEST
+
+Reboot after each test (prolong testing, but for some tests may be necessary).
 
 =cut
 
