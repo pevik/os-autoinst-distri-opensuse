@@ -137,7 +137,9 @@ sub log_versions {
 sub prepare_ltp_env {
     my $ltp_env = get_var('LTP_ENV');
 
-    assert_script_run('export LTPROOT=' . get_ltproot() . '; export LTP_COLORIZE_OUTPUT=n TMPDIR=/tmp PATH=$LTPROOT/testcases/bin:$PATH');
+    # testing NFS on XFS
+    assert_script_run('df -hT /var/tmp/tmpdir');
+    assert_script_run('export LTPROOT=' . get_ltproot() . '; export LTP_COLORIZE_OUTPUT=n TMPDIR=/var/tmp/tmpdir PATH=$LTPROOT/testcases/bin:$PATH');
 
     # setup for LTP networking tests
     assert_script_run("export PASSWD='$testapi::password'");

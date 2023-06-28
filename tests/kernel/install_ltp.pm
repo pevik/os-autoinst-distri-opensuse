@@ -408,6 +408,14 @@ sub run {
         }
     }
 
+    # testing NFS on XFS
+    assert_script_run('dd if=/dev/zero of=/var/tmp/test_file bs=300M count=1');
+    assert_script_run('losetup /dev/loop0 /var/tmp/test_file');
+    assert_script_run('mkfs.xfs /dev/loop0');
+    assert_script_run('mkdir -p /var/tmp/tmpdir');
+    assert_script_run('mount /dev/loop0 /var/tmp/tmpdir');
+    assert_script_run('df -hT /var/tmp/tmpdir');
+
     log_versions 1;
 
     if (is_alp) {
