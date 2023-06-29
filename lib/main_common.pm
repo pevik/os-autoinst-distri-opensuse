@@ -606,14 +606,14 @@ sub load_jeos_openstack_tests {
     loadtest "jeos/image_info";
     loadtest "jeos/record_machine_id";
     loadtest "console/system_prepare" if is_sle;
-    loadtest "console/force_scheduled_tasks";
+    loadtest "console/force_scheduled_tasks" unless is_kernel_test();
     loadtest "jeos/grub2_gfxmode";
     loadtest "jeos/build_key";
     loadtest "console/prjconf_excluded_rpms";
     unless (get_var('CI_VERIFICATION')) {
         loadtest "console/suseconnect_scc";
     }
-    unless (get_var('CONTAINER_RUNTIME')) {
+    unless (get_var('CONTAINER_RUNTIME') || is_kernel_test()) {
         loadtest "console/journal_check";
         loadtest "microos/libzypp_config";
     }
