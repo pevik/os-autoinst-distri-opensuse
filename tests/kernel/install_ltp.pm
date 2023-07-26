@@ -418,6 +418,7 @@ sub run {
 
     $grub_param .= ' console=hvc0' if (get_var('ARCH') eq 'ppc64le');
     $grub_param .= ' console=ttysclp0' if (get_var('ARCH') eq 's390x');
+    $grub_param .= ' selinux=0' if is_alp;
     if (!is_sle('<12') && defined $grub_param) {
         add_grub_cmdline_settings($grub_param, update_grub => 1);
     }
