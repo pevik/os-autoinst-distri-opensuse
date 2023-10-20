@@ -190,7 +190,7 @@ sub install_build_dependencies {
 sub prepare_ltp_git {
     my $url = get_var('LTP_GIT_URL', 'https://github.com/linux-test-project/ltp');
     my $rel = get_var('LTP_RELEASE');
-    my $prefix = get_ltproot();
+    my $prefix = get_ltproot;
     my $configure = "./configure --prefix=$prefix";
     my $extra_flags = get_var('LTP_EXTRA_CONF_FLAGS', '--with-open-posix-testsuite --with-realtime-testsuite');
 
@@ -224,18 +224,18 @@ sub install_selected_from_git {
 
 sub install_from_git {
     my $timeout = (is_aarch64 || is_s390x) ? 7200 : 1440;
-    my $prefix = get_ltproot();
+    my $prefix = get_ltproot;
 
     prepare_ltp_git;
     assert_script_run 'make -j$(getconf _NPROCESSORS_ONLN)', timeout => $timeout;
     script_run 'export CREATE_ENTRIES=1';
     assert_script_run 'make install', timeout => 360;
     assert_script_run "find $prefix -name '*.run-test' > "
-      . get_ltp_openposix_test_list_file();
+      . get_ltp_openposix_test_list_file;
 
     # It is a shallow clone so 'git describe' won't work
     record_info("LTP git", script_output('git log -1 --pretty=format:"git-%h" | tee '
-              . get_ltp_version_file()));
+              . get_ltp_version_file));
 }
 
 sub setup_network {
@@ -327,14 +327,14 @@ sub run {
 
         # bsc#1024050 - Watch for Zombies
         script_run('(pidstat -p ALL 1 > /tmp/pidstat.txt &)');
-        install_from_git();
+        install_from_git;
 
         install_runtime_dependencies_network;
         install_debugging_tools;
     }
     else {
         add_ltp_repo;
-        install_from_repo();
+        install_from_repo;
 
         # print versions before make (it can fail)
         log_versions 1;
@@ -371,7 +371,7 @@ sub run {
     # we don't run LVM tests in 32bit, thus not generating the runtest file
     # for 32 bit packages
     if (!is_sle('<12')) {
-        prepare_ltp_env();
+        prepare_ltp_env;
         assert_script_run('generate_lvm_runfile.sh');
     }
 
@@ -384,7 +384,7 @@ sub run {
         loadtest_kernel 'boot_ltp';
     } elsif ($cmd_file) {
         assert_secureboot_status(1) if get_var('SECUREBOOT');
-        prepare_ltp_env() if (is_sle('<12'));
+        prepare_ltp_env if (is_sle('<12'));
         init_ltp_tests($cmd_file);
         schedule_tests($cmd_file);
     }
@@ -393,7 +393,7 @@ sub run {
 sub post_fail_hook {
     my $self = shift;
 
-    upload_system_logs();
+    upload_system_logs;
 
     # bsc#1024050
     if (get_var('INSTALL_LTP') =~ /git/i) {
@@ -502,7 +502,7 @@ Overrides the official LTP GitHub repository URL.
 =head2 GRUB_PARAM
 
 Append custom group entries with appended group param via
-add_custom_grub_entries().
+add_custom_grub_entries.
 
 =head2 SLES CONFIGURATION
 
