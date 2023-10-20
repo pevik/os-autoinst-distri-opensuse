@@ -322,6 +322,9 @@ sub run {
         install_build_dependencies;
         install_runtime_dependencies;
 
+        # print versions before make (it can fail)
+        log_versions 1;
+
         # bsc#1024050 - Watch for Zombies
         script_run('(pidstat -p ALL 1 > /tmp/pidstat.txt &)');
         install_from_git();
@@ -332,13 +335,15 @@ sub run {
     else {
         add_ltp_repo;
         install_from_repo();
+
+        # print versions before make (it can fail)
+        log_versions 1;
+
         if (get_var("LTP_GIT_URL")) {
             install_build_dependencies;
             install_selected_from_git;
         }
     }
-
-    log_versions 1;
 
     if (is_alp) {
         assert_script_run("transactional-update -n -c pkg install efivar", 90);
