@@ -125,6 +125,27 @@ sub log_versions {
         record_soft_failure 'boo#1189879 missing kernel config';
     }
 
+    record_info('wireguard pkg', script_output('rpm -ql kernel-default |grep -e wireguard -e chacha-p10-crypto', proceed_on_failure => 1));
+    record_info('modinfo wireguard', script_output('modinfo wireguard; echo $?', proceed_on_failure => 1));
+    record_info('modinfo chacha-p10-crypto', script_output('modinfo chacha-p10-crypto; echo $?', proceed_on_failure => 1));
+
+    script_output('echo "=== before modprobe wireguard === " > /dev/kmsg', proceed_on_failure => 1);
+    record_info('modprobe -v wireguard', script_output('modprobe -v wireguard; echo $?', proceed_on_failure => 1));
+    script_output('echo "=== after modprobe wireguard === " > /dev/kmsg', proceed_on_failure => 1);
+    record_info('strace modprobe wireguard', script_output('strace modprobe wireguard; echo $?', proceed_on_failure => 1));
+    record_info('lsmod wireguard', script_output('lsmod |grep wireguard', proceed_on_failure => 1));
+    record_info('ls wireguard', script_output('ls -la /usr/lib/modules/6.6.6-1-default/kernel/drivers/net/wireguard/', proceed_on_failure => 1));
+
+
+    script_output('echo "=== before modprobe chacha-p10-crypto === " > /dev/kmsg', proceed_on_failure => 1);
+    record_info('modprobe -v chacha-p10-crypto', script_output('modprobe -v chacha-p10-crypto; echo $?', proceed_on_failure => 1));
+    script_output('echo "=== after modprobe chacha-p10-crypto === " > /dev/kmsg', proceed_on_failure => 1);
+    record_info('strace modprobe chacha-p10-crypto', script_output('strace modprobe chacha-p10-crypto; echo $?', proceed_on_failure => 1));
+    record_info('lsmod chacha-p10-crypto', script_output('lsmod |grep chacha-p10-crypto', proceed_on_failure => 1));
+    record_info('ls chacha-p10-crypto', script_output('ls -la /usr/lib/modules/6.6.6-1-default/kernel/arch/powerpc/crypto/chacha-p10-crypto.ko* /usr/lib/modules/6.6.6-1-default/kernel/arch/powerpc/crypto/', proceed_on_failure => 1));
+
+    record_info('/usr/lib/sysctl.d/', script_output('ls -la /usr/lib/sysctl.d/ /etc/sysctl.conf', proceed_on_failure => 1));
+
     record_info('KERNEL VERSION', script_output('uname -a'));
     record_info('KERNEL DEFAULT PKG', script_output("cat $kernel_pkg_log", proceed_on_failure => 1));
     record_info('KERNEL EXTRA PKG', script_output('rpm -qi kernel-default-extra', proceed_on_failure => 1));
