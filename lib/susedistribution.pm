@@ -427,6 +427,7 @@ Initialize the consoles needed during our tests
 
 sub init_consoles {
     my ($self) = @_;
+    bmwqemu::fctwarn("pev: START init_consoles");
 
     # avoid complex boolean logic by setting interim variables
     if (is_svirt && is_s390x) {
@@ -472,6 +473,7 @@ sub init_consoles {
                 target_port => SERIAL_USER_TERMINAL_DEFAULT_PORT});
     }
 
+    bmwqemu::fctwarn("pev: GENERAL_HW_VNC_IP: ". get_var('GENERAL_HW_VNC_IP', '')); # FIXME: debug
     if ((get_var('BACKEND', '') =~ /qemu|ikvm/
             || (get_var('BACKEND', '') =~ /generalhw/ && get_var('GENERAL_HW_VNC_IP'))
             || is_svirt_except_s390x))
@@ -815,6 +817,7 @@ configure a timeout value different than default.
 
 sub activate_console {
     my ($self, $console, %args) = @_;
+    bmwqemu::fctwarn("pev: START activate_console(), console: '$console'");
 
     # Select configure serial and redirect to root-ssh instead
     return use_ssh_serial_console if (get_var('BACKEND', '') =~ /ikvm|ipmi|spvm|pvm_hmc/ && $console =~ m/^(root-console|install-shell|log-console)$/);

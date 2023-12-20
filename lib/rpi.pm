@@ -11,6 +11,7 @@ use strict;
 use Exporter 'import';
 use testapi;
 use power_action_utils 'power_action';
+use Utils::Backends;
 
 our @EXPORT = 'enable_tpm_slb9670';
 
@@ -29,6 +30,17 @@ sub enable_tpm_slb9670 {
 
     # Restore SSH connection
     reset_consoles;
+
+    bmwqemu::fctwarn("pev: is_generalhw: '" . is_generalhw . "', GENERAL_HW_VNC_IP: '". get_var('GENERAL_HW_VNC_IP', '') . "'"); # FIXME: debug
+    #if (is_generalhw && !defined(get_var('GENERAL_HW_VNC_IP'))) {
+    if (is_generalhw) {
+        # Wait jeos-firstboot is done and clear screen, as we are already logged-in via ssh
+        bmwqemu::fctwarn("pev: call wait_still_screen"); # FIXME: debug
+        wait_still_screen;
+        bmwqemu::fctwarn("pev: call clear_and_verify_console"); # FIXME: debug
+        opensusebasetest::clear_and_verify_console;
+    }
+
     select_console('root-ssh');
 
     record_info('RPi TPM', script_output("dmesg | grep '$module.*2.0 TPM.*device-id.*rev-id'"));

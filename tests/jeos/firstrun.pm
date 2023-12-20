@@ -208,9 +208,12 @@ sub run {
     # when there are more jobs running concurrently. We need to wait for
     # various disk optimizations and snapshot enablement to land.
     # Meltdown/Spectre mitigations makes this even worse.
+    bmwqemu::fctwarn("pev: is_generalhw: '" . is_generalhw . "', GENERAL_HW_VNC_IP: '". get_var('GENERAL_HW_VNC_IP') . "'"); # FIXME: debug
     if (is_generalhw && !defined(get_var('GENERAL_HW_VNC_IP'))) {
         # Wait jeos-firstboot is done and clear screen, as we are already logged-in via ssh
+        bmwqemu::fctwarn("pev: call wait_still_screen"); # FIXME: debug
         wait_still_screen;
+        bmwqemu::fctwarn("pev: call clear_and_verify_console"); # FIXME: debug
         $self->clear_and_verify_console;
     }
     else {
