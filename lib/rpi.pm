@@ -25,7 +25,7 @@ sub enable_tpm_slb9670 {
     power_action('reboot', textmode => 1);
 
     # Add some timeout to wait for reboot
-    sleep(60);
+    sleep(300);
 
     # Restore SSH connection
     reset_consoles;
