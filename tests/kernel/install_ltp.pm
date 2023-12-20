@@ -299,7 +299,13 @@ sub run {
         $self->wait_boot;
     }
 
-    enable_tpm_slb9670 if (get_var('MACHINE') =~ /RPi/);
+    # Enable TPM on Raspberry Pi 4
+    # Refer: https://en.opensuse.org/HCL:Raspberry_Pi3_TPM
+    if (get_var('MACHINE') =~ /RPi4/) {
+        enable_tpm_slb9670;
+    } else {
+        select_serial_terminal;
+    }
 
     select_serial_terminal;
 
