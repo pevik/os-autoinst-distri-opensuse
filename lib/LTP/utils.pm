@@ -331,6 +331,7 @@ sub parse_runtest_file {
         next if ($line =~ /(^#)|(^$)/);
 
         #Command format is "<name> <command> [<args>...] [#<comment>]"
+        record_info('LINE', "'$line'"); # FIXME: debug
         next if ($line !~ /^\s* ([\w-]+) \s+ (\S.+) #?/gx);
         next if (is_svirt && ($1 eq 'dnsmasq' || $1 eq 'dhcpd'));    # poo#33850
         my $test = {name => $1 . $suffix, command => $2};
@@ -338,6 +339,12 @@ sub parse_runtest_file {
 
         if ($test->{name} =~ m/$cmd_pattern/ && !($test->{name} =~ m/$cmd_exclude/)) {
             loadtest_runltp($test->{name}, $tinfo, $whitelist);
+        }
+
+        record_info('CMD', "'$test->{command}'"); # FIXME: debug
+
+        if ($test->{command} eq "") {
+            die "Command is empty for test '" . $test->{name} . "', bug in LTP runtest file?";
         }
     }
 }
