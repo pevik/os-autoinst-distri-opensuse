@@ -27,6 +27,11 @@ sub export_to_json {
 sub run {
     my ($self, $tinfo) = @_;
 
+    record_info('ip');
+    script_run('ip link add ltp_v0 type wireguard');
+    record_info('strace');
+    script_run('strace ip link add ltp_v0 type wireguard');
+
     if (defined $tinfo) {
         export_to_json($tinfo->test_result_export);
     }
