@@ -136,6 +136,8 @@ sub log_versions {
         record_info('ver_linux', script_output("cat $ver_linux_log", proceed_on_failure => 1));
     }
 
+    record_info('df', script_output('for i in /tmp /var/tmp $TMPDIR; do echo "== $i =="; df -hT $i; echo; done', proceed_on_failure => 1));
+
     script_run('env');
     script_run('aa-enabled; aa-status');
 }
