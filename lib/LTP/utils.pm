@@ -360,6 +360,7 @@ sub parse_runfiles {
 
 sub add_ltp_repo {
     my $repo = get_var('LTP_REPOSITORY');
+    bmwqemu::fctwarn("pev: repo: '$repo'"); # FIXME: debug
 
     if (!$repo) {
         if (is_sle || is_transactional) {
@@ -380,9 +381,22 @@ sub add_ltp_repo {
         } else {
             die sprintf("Unexpected combination of version (%s) and architecture (%s) used", get_var('VERSION'), get_var('ARCH'));
         }
-        $repo = "https://download.opensuse.org/repositories/benchmark:/ltp:/devel/$repo/";
+
+        # allow to force ltp-stable package
+        my $base = 'devel';
+        if (get_var('LTP_PKG', '')  =~ /stable/) {
+            $base = 'stable';
+            bmwqemu::fctwarn("pev: stable"); # FIXME: debug
+        } else {
+            bmwqemu::fctwarn("pev: devel!"); # FIXME: debug
+        }
+
+        $repo = "https://download.opensuse.org/repositories/benchmark:/ltp:/$base/$repo/";
     }
 
+    bmwqemu::fctwarn("pev: final repo: '$repo'"); # FIXME: debug
+    # workaround to remove repo first
+    zypper_call('rr ltp_repo', exitcode => [0]);
     zypper_ar($repo, name => 'ltp_repo');
 }
 
