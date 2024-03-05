@@ -16,7 +16,7 @@ use serial_terminal 'select_serial_terminal';
 use Utils::Backends;
 use LTP::utils;
 use version_utils qw(is_jeos is_sle);
-use utils 'assert_secureboot_status';
+use utils qw(assert_secureboot_status zypper_call);
 use kdump_utils;
 
 sub run {
@@ -49,6 +49,8 @@ sub run {
     # Initialize VNC console now to avoid login attempts on frozen system
     select_console('root-console') if get_var('LTP_DEBUG');
     select_serial_terminal;
+
+    zypper_call('-t in strace');
 
     # Debug code for poo#81142
     script_run('gzip -9 </dev/fb0 >framebuffer.dat.gz');
