@@ -126,6 +126,7 @@ sub log_versions {
         record_soft_failure 'boo#1189879 missing kernel config';
     }
 
+    record_info('modprobe', script_output('echo "modprobe nf_conntrack_proto_gre" > /dev/kmsg; modprobe nf_conntrack_proto_gre; echo $?'));
     record_info('host openqa.opensuse.org', script_output('host openqa.opensuse.org; echo $?'));
     record_info('KERNEL VERSION', script_output('uname -a'));
     record_info('KERNEL DEFAULT PKG', script_output("cat $kernel_pkg_log", proceed_on_failure => 1));
