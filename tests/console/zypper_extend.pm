@@ -152,7 +152,7 @@ sub run {
     validate_script_output('zypper lr 1', sub { m/Enabled\s+:\sYes/ });
 
     #Forced refresh of repositories
-    zypper_call 'refresh -fdb';
+    zypper_call "refresh " . (is_riscv ? '' : '-fdb');
 
     #Autorefresh on repository on/off
     my $refresh = is_sle('=12-sp1') ? '-r' : '-f';
