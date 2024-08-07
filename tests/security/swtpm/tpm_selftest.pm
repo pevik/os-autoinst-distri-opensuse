@@ -28,19 +28,17 @@ sub run {
 
     # Based on bsc#1193350, swtpm 1.2 device is not supported
     # on arch64 platform any more, so skip the test on aarch64
-    if (!is_aarch64) {
-        # Make sure tpm device can be created
-        assert_script_run('ls -l /dev/tpm*');
+    # Make sure tpm device can be created
+    assert_script_run('ls -l /dev/tpm*');
 
-        # Make sure 'tcsd' service can be enabled and started successfully
-        systemctl('enable tcsd');
-        systemctl('start tcsd');
-        systemctl('is-active tcsd');
+    # Make sure 'tcsd' service can be enabled and started successfully
+    systemctl('enable tcsd');
+    systemctl('start tcsd');
+    systemctl('is-active tcsd');
 
-        # Make sure TPM 1.2 device can be recognized and selftest succeeded
-        validate_script_output('tpm_version', sub { m/TPM 1.2 Version/ });
-        validate_script_output('tpm_selftest -l debug', sub { m/tpm_selftest succeeded/ });
-    }
+    # Make sure TPM 1.2 device can be recognized and selftest succeeded
+    validate_script_output('tpm_version', sub { m/TPM 1.2 Version/ });
+    validate_script_output('tpm_selftest -l debug', sub { m/tpm_selftest succeeded/ });
 }
 
 sub post_fail_hook {
