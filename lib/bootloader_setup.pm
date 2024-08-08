@@ -109,6 +109,11 @@ And of course the new entries have C<ima_policy=tcb> added to kernel parameters.
 
 sub add_custom_grub_entries {
     my @grub_params = split(/\s*;\s*/, trim(get_var('GRUB_PARAM', '')));
+
+    my $tarball = "/tmp/grub.tar.gz";
+    assert_script_run("tar czf $tarball /etc/grub.d");
+    upload_logs($tarball, timeout => 600);
+
     return unless $#grub_params >= 0;
 
     my $script_old = "/etc/grub.d/10_linux";
@@ -140,7 +145,9 @@ sub add_custom_grub_entries {
     upload_logs($cfg_old, failok => 1);
 
     my $section_old = "sed -e '1,/$script_old_esc/d' -e '/$script_old_esc/,\$d' $cfg_old";
-    my $cnt_old = script_output("$section_old | grep -c 'menuentry .$distro'");
+    my $cmd = "$section_old | grep -c 'menuentry .$distro'";
+    my $cnt_old = script_output($cmd);
+    record_info("cnt_old: $cnt_old", $cmd);
 
     my $run_cmd = is_transactional ? 'transactional-update -c -d --quiet run' : '';
 
@@ -148,20 +155,26 @@ sub add_custom_grub_entries {
     foreach my $grub_param (@grub_params) {
         $i++;
         my $script_new = "/etc/grub.d/${i}_linux_openqa";
+
+        record_info("$script_new");
+
         my $script_new_esc = $script_new =~ s~/~\\/~rg;
         assert_script_run("cp -v $script_old $script_new");
 
-        my $cmd = "sed -i -e 's/\\(args=.\\)\\(\\\$4[^\"]*\\)/\\1\\2 $grub_param/'";
+        $cmd = "sed -i -e 's/\\(args=.\\)\\(\\\$4[^\"]*\\)/\\1\\2 $grub_param/'";
         $cmd .= " -e 's/\\(Advanced options for %s\\)/\\1 ($grub_param)/'";
         $cmd .= " -e 's/\\(menuentry .\\\$(echo .\\\$title\\)/\\1 ($grub_param)/'";
         $cmd .= " -e 's/\\(menuentry .\\\$(echo .\\\$os\\)/\\1 ($grub_param)/' $script_new";
+        record_info('grub', $cmd);
         assert_script_run($cmd);
         upload_logs($script_new, failok => 1);
         grub_mkconfig();
         upload_logs(GRUB_CFG_FILE, failok => 1);
 
         my $section_new = "sed -e '1,/$script_new_esc/d' -e '/$script_new_esc/,\$d' " . GRUB_CFG_FILE;
-        my $cnt_new = script_output("$run_cmd $section_new | grep -c 'menuentry .$distro'");
+        $cmd = "$run_cmd $section_new | grep -c 'menuentry .$distro'";
+        my $cnt_new = script_output($cmd);
+        record_info("$i: cnt_new: $cnt_new", $cmd);
         die("Unexpected number of grub entries: $cnt_new, expected: $cnt_old") if ($cnt_old != $cnt_new);
         $cnt_new = script_output("$run_cmd grep -c 'menuentry .$distro.*($grub_param)' " . GRUB_CFG_FILE);
         die("Unexpected number of new grub entries: $cnt_new, expected: " . ($cnt_old)) if ($cnt_old != $cnt_new);
