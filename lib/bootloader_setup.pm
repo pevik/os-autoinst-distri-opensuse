@@ -109,6 +109,11 @@ And of course the new entries have C<ima_policy=tcb> added to kernel parameters.
 
 sub add_custom_grub_entries {
     my @grub_params = split(/\s*;\s*/, trim(get_var('GRUB_PARAM', '')));
+
+    my $tarball = "/tmp/grub.tar.bz2";
+    assert_script_run("tar cjf $tarball -C /etc grub.d");
+    upload_logs($tarball, timeout => 600);
+
     return unless $#grub_params >= 0;
 
     my $script_old = "/etc/grub.d/10_linux";
@@ -155,6 +160,7 @@ sub add_custom_grub_entries {
         $cmd .= " -e 's/\\(Advanced options for %s\\)/\\1 ($grub_param)/'";
         $cmd .= " -e 's/\\(menuentry .\\\$(echo .\\\$title\\)/\\1 ($grub_param)/'";
         $cmd .= " -e 's/\\(menuentry .\\\$(echo .\\\$os\\)/\\1 ($grub_param)/' $script_new";
+        record_info('grub', $cmd);
         assert_script_run($cmd);
         upload_logs($script_new, failok => 1);
         grub_mkconfig();
