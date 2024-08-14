@@ -404,6 +404,10 @@ sub run {
 sub post_fail_hook {
     my $self = shift;
 
+    record_info("!!! sleep !!!");    # FIXME: debug
+    bmwqemu::fctwarn("!!! sleep !!!");    # FIXME: debug
+    script_run("echo '!!! sleep !!!'");
+    sleep;    # FIXME: debug
     upload_system_logs();
 
     # bsc#1024050
