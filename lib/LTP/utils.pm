@@ -99,6 +99,7 @@ sub log_versions {
     my $ver_linux_log = '/tmp/ver_linux_before.txt';
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
 
+    enter_trup_shell(global_options => '-c') if is_transactional;
     script_run("rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1");
     upload_logs($kernel_pkg_log, failok => 1);
 
@@ -129,9 +130,11 @@ sub log_versions {
 
     record_info('KERNEL VERSION', script_output('uname -a'));
     record_info('KERNEL DEFAULT PKG', script_output("cat $kernel_pkg_log", proceed_on_failure => 1));
-    record_info('KERNEL EXTRA PKG', script_output('rpm -qi kernel-default-extra', proceed_on_failure => 1));
+    record_info('KERNEL EXTRA PKG', script_output("rpm -qi kernel-default-extra", proceed_on_failure => 1));
 
-    record_info('KERNEL pkg', script_output('rpm -qa | grep kernel', proceed_on_failure => 1));
+    record_info('KERNEL pkg', script_output("rpm -qa | grep kernel", proceed_on_failure => 1));
+
+    exit_trup_shell if is_transactional;
 
     if (get_var('LTP_COMMAND_FILE') || get_var('LIBC_LIVEPATCH')) {
         record_info('ver_linux', script_output("cat $ver_linux_log", proceed_on_failure => 1));
