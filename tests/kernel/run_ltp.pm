@@ -356,7 +356,10 @@ sub run {
 
     my $fin_msg = "### TEST $test->{name} COMPLETE >>> ";
     my $cmd_text = qq($test->{command}; echo "$fin_msg\$?.");
-    my $klog_stamp = "echo 'OpenQA::run_ltp.pm: Starting $test->{name}' > /dev/$serialdev";
+
+    bmwqemu::fctwarn("pev: serialdev: '$serialdev' , SERIALDEV: '" . get_var('SERIALDEV', '') . "'");    # FIXME: debug
+    my $klog_file = get_var('SERIALDEV', $serialdev);
+    my $klog_stamp = "echo 'OpenQA::run_ltp.pm: Starting $test->{name}' > /dev/$klog_file";
     my $start_time = thetime();
 
     if (check_var_array('LTP_DEBUG', 'tcpdump')) {
