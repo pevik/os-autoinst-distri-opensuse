@@ -18,6 +18,10 @@ sub run {
 
     my $tools_dir = '/usr/share/bcc/tools';
 
+    record_info('versions', script_output('rpm -qa |grep -i -e bcc', proceed_on_failure => 1));
+    record_info('ldd', script_output('ldd $(command -v bcc)'));
+    record_info('SONAME', script_output(q%for i in $(ldd $(command -v bcc) | awk '{print $3}'); do readelf -d $i | grep SONAME; done%));
+
     assert_script_run("$tools_dir/btrfsdist 5 2");
     assert_script_run("$tools_dir/btrfsslower -d 10");
     assert_script_run("$tools_dir/filetop -a 5 10");

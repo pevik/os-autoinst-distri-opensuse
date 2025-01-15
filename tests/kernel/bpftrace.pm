@@ -17,7 +17,10 @@ sub run {
 
     zypper_call('in bpftrace bpftrace-tools');
 
-    assert_script_run('bpftrace --info');
+    record_info('versions', script_output('rpm -qa |grep -i -e bpf -e libclang -e llvm', proceed_on_failure => 1));
+    record_info('info', script_output('bpftrace --info'));
+    record_info('ldd', script_output('ldd $(command -v bpftrace)'));
+    record_info('SONAME', script_output(q%for i in $(ldd $(command -v bpftrace) | awk '{print $3}'); do readelf -d $i | grep SONAME; done%));
 
     my $trace_points = script_output('bpftrace -l "*openat"');
 
@@ -71,11 +74,11 @@ sub run {
       old/tcpdrop.bt);
 
     foreach my $t (@assert_tests) {
-        assert_script_run(qq%echo -e "\\ninterval:s:5 { exit(); }" | cat $tools_dir/$t - | bpftrace -%);
+        record_info("$t interval", script_output(qq%echo -e "\\ninterval:s:5 { exit(); }" | cat $tools_dir/$t - | bpftrace -%));
     }
 
     foreach my $t (@tests) {
-        script_run(qq%echo -e "\\ninterval:s:5 { exit(); }" | cat $tools_dir/$t - | bpftrace -%);
+        record_info("$t interval", script_output(qq%echo -e "\\ninterval:s:5 { exit(); }" | cat $tools_dir/$t - | bpftrace -%), proceed_on_failure => 1);
     }
 
     my $case_dir = get_required_var('CASEDIR');
