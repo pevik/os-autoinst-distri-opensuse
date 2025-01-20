@@ -83,7 +83,6 @@ sub install_runtime_dependencies {
       fuse-exfat
       ibmtss
       lvm2
-      net-tools
       net-tools-deprecated
       ntfsprogs
       numactl
