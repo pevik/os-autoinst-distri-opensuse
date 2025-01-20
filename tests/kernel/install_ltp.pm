@@ -83,7 +83,6 @@ sub install_runtime_dependencies {
       fuse-exfat
       ibmtss
       lvm2
-      net-tools
       net-tools-deprecated
       ntfsprogs
       numactl
@@ -119,8 +118,6 @@ sub install_debugging_tools {
 sub install_runtime_dependencies_network {
     my @deps;
     @deps = qw(
-      dhcp-client
-      dhcp-server
       diffutils
       dnsmasq
       ethtool
@@ -130,7 +127,6 @@ sub install_runtime_dependencies_network {
       rpcbind
       rsync
       telnet
-      tcpdump
       vsftpd
     );
     zypper_call('-t in ' . join(' ', @deps));
@@ -390,7 +386,7 @@ sub run {
         reboot_on_changes;
     }
 
-    setup_network;
+    #setup_network;
 
     # we don't run LVM tests in 32bit, thus not generating the runtest file
     # for 32 bit packages
