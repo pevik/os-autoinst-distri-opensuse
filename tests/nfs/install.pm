@@ -23,6 +23,7 @@ sub install_dependencies_pynfs {
       swig
       python3-gssapi
       python3-ply
+      python3-virtualenv
       nfs-client
       nfs-kernel-server
     );
@@ -54,6 +55,8 @@ sub install_testsuite {
 
         install_dependencies_pynfs;
         assert_script_run("git clone -q --depth 1 $url $rel && cd ./pynfs");
+        assert_script_run("python3 -m virtualenv .venv && . .venv/bin/activate");
+        assert_script_run("pip install xdrlib3");
         assert_script_run('./setup.py build && ./setup.py build_ext --inplace');
     }
     elsif (get_var("CTHON04")) {
