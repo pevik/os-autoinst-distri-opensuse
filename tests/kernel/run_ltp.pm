@@ -30,7 +30,7 @@ sub do_reboot {
     record_info("reboot");
     power_action('reboot', textmode => 1, keepconsole => is_pvm);
     reconnect_mgmt_console if is_pvm || get_var('LTP_BAREMETAL');
-    $self->wait_boot;
+    $self->wait_boot(ready_time => 300);
     select_serial_terminal;
     prepare_ltp_env;
 }
