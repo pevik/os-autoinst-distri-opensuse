@@ -97,17 +97,11 @@ sub log_versions {
     my $kernel_pkg = is_jeos || get_var('KERNEL_BASE') ? 'kernel-default-base' :
       (is_rt ? 'kernel-rt' : get_kernel_flavor);
     my $kernel_pkg_log = '/tmp/kernel-pkg.txt';
-    my $ver_linux_log = '/tmp/ver_linux_before.txt';
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
     my $run_cmd = is_transactional ? 'transactional-update -c run ' : '';
 
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
-
-    if (get_var('LTP_COMMAND_FILE') || get_var('LIBC_LIVEPATCH')) {
-        script_run("$run_cmd " . get_ltproot . "/ver_linux > $ver_linux_log 2>&1");
-        upload_logs($ver_linux_log, failok => 1);
-    }
 
     if ($kernel_config) {
         my $cmd = "echo '# $kernel_config'; echo; ";
@@ -135,7 +129,7 @@ sub log_versions {
     record_info('KERNEL pkg', script_output("$run_cmd rpm -qa | grep kernel", proceed_on_failure => 1));
 
     if (get_var('LTP_COMMAND_FILE') || get_var('LIBC_LIVEPATCH')) {
-        record_info('ver_linux', script_output("cat $ver_linux_log", proceed_on_failure => 1));
+        record_info('ver_linux', script_output(get_ltproot . "/ver_linux", proceed_on_failure => 1));
     }
 
     script_run('env');
@@ -338,7 +332,7 @@ sub schedule_tests {
         results => []};
     my $environment = prepare_whitelist_environment();
 
-    my $ver_linux_out = script_output("cat /tmp/ver_linux_before.txt");
+    my $ver_linux_out = script_output("\$LTPROOT/ver_linux");
     if ($ver_linux_out =~ qr'^Linux C Library\s*>?\s*(.*?)\s*$'m) {
         $environment->{libc} = $1;
     }
