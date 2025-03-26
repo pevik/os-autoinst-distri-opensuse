@@ -152,6 +152,13 @@ sub export_ltp_env {
 
 # Set up basic shell environment for running LTP tests
 sub prepare_ltp_env {
+    my $s = 'tst_net.sh';
+    my $script_url = data_url("ltp/$s");
+
+    assert_script_run("curl -sS -o /tmp/$s $script_url");
+    assert_script_run("chmod u+x /tmp/$s", timeout => 300);
+    assert_script_run("cp -v /tmp/$s " . get_ltproot() . "/testcases/bin", timeout => 300);
+
     assert_script_run('export LTPROOT=' . get_ltproot() . '; export LTP_COLORIZE_OUTPUT=n TMPDIR=/tmp PATH=$LTPROOT/testcases/bin:$PATH');
 
     # setup for LTP networking tests
