@@ -103,6 +103,8 @@ sub log_versions {
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
 
+    record_info('vm.max_map_count', script_output('sysctl vm.max_map_count'));
+
     if (get_var('LTP_COMMAND_FILE') || get_var('LIBC_LIVEPATCH')) {
         script_run("$run_cmd " . get_ltproot . "/ver_linux > $ver_linux_log 2>&1");
         upload_logs($ver_linux_log, failok => 1);
