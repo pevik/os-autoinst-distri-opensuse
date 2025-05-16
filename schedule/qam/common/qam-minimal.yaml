@@ -30,11 +30,15 @@ schedule:
 - installation/reboot_after_installation
 - installation/handle_reboot
 - installation/first_boot
+- console/ping
+- console/arping
 - console/system_prepare
 - console/hostname
 - qam-minimal/install_update
 - qam-minimal/update_minimal
 - qam-minimal/check_logs
+- console/ping
+- console/arping
 - '{{s390tools}}'
 - '{{publish}}'
 conditional_schedule:
