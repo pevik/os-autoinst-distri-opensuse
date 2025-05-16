@@ -107,6 +107,8 @@ sub load_kernel_tests {
             loadtest_kernel 'install_kotd';
         }
         loadtest_kernel 'boot_ltp';
+        loadtest "console/ping";
+        loadtest "console/arping";
         loadtest_kernel 'qa_test_klp';
         unless (get_var('KOTD_REPO') ||
             get_var('INSTALL_KOTD') ||
