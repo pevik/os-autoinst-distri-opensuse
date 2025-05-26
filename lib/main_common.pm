@@ -1759,7 +1759,7 @@ sub load_extra_tests_console {
     }
     loadtest 'console/supportutils' if (is_sle && !is_jeos);
     loadtest 'console/mdadm' unless (is_jeos || is_public_cloud());
-    loadtest 'console/journalctl';
+    loadtest 'console/journalctl' unless is_s390x;
     loadtest 'console/quota' unless (is_jeos);
     loadtest 'console/vhostmd' unless is_public_cloud();
     loadtest 'console/rpcbind' unless is_jeos;
