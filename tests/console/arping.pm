@@ -22,10 +22,16 @@ sub run {
     }
 
     record_info('arping', script_output('arping -V'));
+    record_info('link', script_output('ip link'));
+    record_info('route', script_output('ip route show default'));
+    record_info('addr', script_output('ip -4 addr show'));
 
     my $ifname = script_output('ip link | grep -v lo: | awk "/^[0-9]/ {print \$2}" | sed s/:// | head -1');
     my $ip = script_output("ip -4 addr show $ifname | awk '/inet.*brd/ { print \$2 }' | head -1 | cut -d/ -f1");
     my $route = script_output("ip route show default | awk '/default/ {print \$3}' | head -1");
+    record_info('ifname', $ifname);
+    record_info('ip', $ip);
+    record_info('route', $route);
 
     my @tests = (
         "-I $ifname -A -c1 $ip",
