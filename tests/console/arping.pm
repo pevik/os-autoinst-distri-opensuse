@@ -21,6 +21,10 @@ sub run {
         zypper_call('in iputils');
     }
 
+    record_info('route', script_output('ip route'));
+    record_info('link', script_output('ip link'));
+    record_info('addr', script_output('ip addr'));
+
     record_info('arping', script_output('arping -V'));
 
     my $ifname = script_output('ip link | grep -v lo: | awk "/^[0-9]/ {print \$2}" | sed s/:// | head -1');
