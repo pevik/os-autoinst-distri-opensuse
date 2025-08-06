@@ -28,6 +28,10 @@ sub run {
     my $ip = script_output("ip -4 addr show $ifname | awk '/inet.*brd/ { print \$2 }' | head -1 | cut -d/ -f1");
     my $route = script_output("ip route show default | awk '/default/ {print \$3}' | head -1");
 
+    record_info('NIC', script_output('ls -ld /sys/class/net/*'));
+    record_info('layer2', script_output(
+            'for i in /sys/class/net/*/type; do f=$(dirname $i)/device/layer2; [ -f "$f" ] && echo "$f: $(cat $f)" || continue; done'));
+
     if (is_s390x && script_run("grep -qw 0 /sys/class/net/$ifname/device/layer2") == 0) {
         record_info('Skipped', 'interface configured for layer 3 only', result => 'softfail');
         return;
