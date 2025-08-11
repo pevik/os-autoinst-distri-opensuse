@@ -36,7 +36,7 @@ sub load_kernel_tests {
     if (get_var('INSTALL_LTP')) {
         if (is_transactional) {
             # Handle specific boot requirements for different backends and architectures
-            if (is_s390x) {
+            if (is_s390x || get_var('MACHINE') =~ /uefi/) {
                 loadtest 'boot/boot_to_desktop';
             }
             elsif ((is_ipmi || is_pvm)) {
