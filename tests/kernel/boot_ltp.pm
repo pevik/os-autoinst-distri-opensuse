@@ -61,6 +61,12 @@ sub run {
 
     assert_secureboot_status(1) if (get_var('SECUREBOOT'));
 
+    my $ver_linux = 'ver_linux';
+    my $script_url = data_url("ltp/$ver_linux");
+    assert_script_run("curl -sS -o /tmp/$ver_linux $script_url");
+    assert_script_run("chmod u+x /tmp/$ver_linux", timeout => 300);
+    assert_script_run("for i in /opt/ltp*; do cp -v /tmp/$ver_linux \$i; done", timeout => 300);
+
     log_versions;
 
     # check kGraft patch if KGRAFT=1
