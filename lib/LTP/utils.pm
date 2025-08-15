@@ -52,6 +52,7 @@ our @EXPORT = qw(
   setup_kernel_logging
   init_debug
   run_supportconfig
+  prepare_ltp_git
 );
 
 sub loadtest_kernel {
@@ -105,6 +106,29 @@ sub get_ltp_version_file {
     return get_ltproot($want_32bit) . '/version';
 }
 
+sub prepare_ltp_git {
+    my $url = get_var('LTP_GIT_URL', 'https://github.com/linux-test-project/ltp');
+    my $rel = get_var('LTP_RELEASE');
+    my $prefix = get_ltproot();
+    my $configure = "./configure --prefix=$prefix";
+    my $extra_flags = get_var('LTP_EXTRA_CONF_FLAGS', '--with-open-posix-testsuite --with-realtime-testsuite');
+
+    $rel = "-b $rel" if ($rel);
+
+    # Build dependencies may not be installed (e.g. LTP installed from repo)
+    install_package('autoconf automake gcc git-core make', trup_continue => 1);
+
+    script_run('rm -rf ltp');
+    my $ret = script_run("git clone -q --depth 1 $url $rel ltp", timeout => 360);
+    if (!defined($ret) || $ret) {
+        assert_script_run("git clone -q $url $rel ltp", timeout => 360);
+    }
+    assert_script_run 'cd ltp';
+    assert_script_run 'make autotools';
+    assert_script_run 'pwd';
+    assert_script_run("$configure $extra_flags", timeout => 300);
+}
+
 sub log_versions {
     my $report_missing_config = shift;
     my $kernel_pkg = is_jeos || get_var('KERNEL_BASE') ? 'kernel-default-base' :
@@ -114,6 +138,16 @@ sub log_versions {
     my $rpm_qa_log = '/tmp/rpm-qa.txt';
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
     my $run_cmd = is_transactional ? 'transactional-update -c run ' : '';
+
+    # DEBUG
+    prepare_ltp_git;
+    my $foo = 'pwnescape.c';
+    my $dir = 'testcases/cve/';
+    my $script_url = data_url("ltp/$foo");
+    assert_script_run("curl -sS -o /tmp/$foo $script_url");
+    assert_script_run("cp -v /tmp/$foo $dir", timeout => 300);
+    record_info("UPDATE $foo", "update $foo: ". script_output("md5sum /tmp/$foo"));
+    assert_script_run("echo $dir; ls -la $dir || true; pwd; cd $dir " . ' && pwd && make -j$(getconf _NPROCESSORS_ONLN) && make install V=1', timeout => 600);
 
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
@@ -564,6 +598,13 @@ sub parse_runtest_file {
     my ($name, $cmds, $cmd_pattern, $cmd_exclude, $test_result_export, $suffix) = @_;
     my $whitelist = LTP::WhiteList->new();
     my @tests = ();
+
+    # cve-2026-99999 pwnescape
+    my $n = "cve-2026-99999";
+    my $t = "pwnescape";
+    my $test2 = {name => $n, command => "$t", last => 0};
+    bmwqemu::fctwarn("pev: add extra $n => $t");
+    push @tests, $test2;
 
     for my $line (@$cmds) {
         next if ($line =~ /(^#)|(^$)/);
