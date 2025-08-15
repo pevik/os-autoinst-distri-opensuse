@@ -153,25 +153,6 @@ sub install_build_dependencies {
     install_available_packages(join(' ', get_maybe_build_dependencies()));
 }
 
-sub prepare_ltp_git {
-    my $url = get_var('LTP_GIT_URL', 'https://github.com/linux-test-project/ltp');
-    my $rel = get_var('LTP_RELEASE');
-    my $prefix = get_ltproot();
-    my $configure = "./configure --prefix=$prefix";
-    my $extra_flags = get_var('LTP_EXTRA_CONF_FLAGS', '--with-open-posix-testsuite --with-realtime-testsuite');
-
-    $rel = "-b $rel" if ($rel);
-
-    script_run('rm -rf ltp');
-    my $ret = script_run("git clone -q --depth 1 $url $rel ltp", timeout => 360);
-    if (!defined($ret) || $ret) {
-        assert_script_run("git clone -q $url $rel ltp", timeout => 360);
-    }
-    assert_script_run 'cd ltp';
-    assert_script_run 'make autotools';
-    assert_script_run("$configure $extra_flags", timeout => 300);
-}
-
 sub install_selected_from_git {
     prepare_ltp_git;
     assert_script_run('make -j$(getconf _NPROCESSORS_ONLN) modules', timeout => 600);
