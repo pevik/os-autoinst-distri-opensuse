@@ -106,6 +106,14 @@ sub log_versions {
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
     my $run_cmd = is_transactional ? 'transactional-update -c run ' : '';
 
+    # DEBUG
+    foreach my $foo (qw(ima_kexec.sh)) {
+        my $script_url = data_url("ltp/$foo");
+        assert_script_run("curl -sS -o /tmp/$foo $script_url");
+        assert_script_run("chmod u+x /tmp/$foo", timeout => 300);
+        assert_script_run("for i in /opt/ltp*/testcases/bin; do cp -v /tmp/$foo \$i; done", timeout => 300);
+    }
+
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
 
