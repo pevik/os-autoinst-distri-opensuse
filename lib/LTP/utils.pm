@@ -101,6 +101,13 @@ sub log_versions {
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
     my $run_cmd = is_transactional ? 'transactional-update -c run ' : '';
 
+    # DEBUG
+    my $ver_linux = 'ver_linux';
+    my $script_url = data_url("ltp/$ver_linux");
+    assert_script_run("curl -sS -o /tmp/$ver_linux $script_url");
+    assert_script_run("chmod u+x /tmp/$ver_linux", timeout => 300);
+    assert_script_run("for i in /opt/ltp*; do cp -v /tmp/$ver_linux \$i; done", timeout => 300);
+
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
 
