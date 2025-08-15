@@ -45,6 +45,7 @@ our @EXPORT = qw(
   setup_kernel_logging
   init_debug
   run_supportconfig
+  prepare_ltp_git
 );
 
 sub loadtest_kernel {
@@ -98,6 +99,26 @@ sub get_ltp_version_file {
     return get_ltproot($want_32bit) . '/version';
 }
 
+sub prepare_ltp_git {
+    my $url = get_var('LTP_GIT_URL', 'https://github.com/linux-test-project/ltp');
+    my $rel = get_var('LTP_RELEASE');
+    my $prefix = get_ltproot();
+    my $configure = "./configure --prefix=$prefix";
+    my $extra_flags = get_var('LTP_EXTRA_CONF_FLAGS', '--with-open-posix-testsuite --with-realtime-testsuite');
+
+    $rel = "-b $rel" if ($rel);
+
+    script_run('rm -rf ltp');
+    my $ret = script_run("git clone -q --depth 1 $url $rel ltp", timeout => 360);
+    if (!defined($ret) || $ret) {
+        assert_script_run("git clone -q $url $rel ltp", timeout => 360);
+    }
+    assert_script_run 'cd ltp';
+    assert_script_run 'make autotools';
+    assert_script_run 'pwd';
+    assert_script_run("$configure $extra_flags", timeout => 300);
+}
+
 sub log_versions {
     my $report_missing_config = shift;
     my $kernel_pkg = is_jeos || get_var('KERNEL_BASE') ? 'kernel-default-base' :
@@ -107,6 +128,26 @@ sub log_versions {
     my $rpm_qa_log = '/tmp/rpm-qa.txt';
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
     my $run_cmd = is_transactional ? 'transactional-update -c run ' : '';
+
+    # DEBUG
+    foreach my $foo (qw(nfs_lib.sh)) {
+        my $script_url = data_url("ltp/$foo");
+        assert_script_run("curl -sS -o /tmp/$foo $script_url");
+        assert_script_run("chmod u+x /tmp/$foo", timeout => 300);
+        assert_script_run("for i in /opt/ltp*/testcases/bin; do cp -v /tmp/$foo \$i; done", timeout => 300);
+    }
+
+    # not working on 12-SP3
+    # git clone -q https://github.com/linux-test-project/ltp  ltp; echo GNaHz-$?-
+    # If 'git' is not a typo you can use command-not-found to lookup the package that contains it, like this:
+    # cnf git
+    #prepare_ltp_git;
+    #my $foo = "ima_mmap.c";
+    #my $dir = "testcases/kernel/security/integrity/ima/src/";
+    #my $script_url = data_url("ltp/$foo");
+    #assert_script_run("curl -sS -o /tmp/$foo $script_url");
+    #assert_script_run("cp -v /tmp/$foo $dir", timeout => 300);
+    #assert_script_run("echo $dir; ls -la $dir || true; pwd; cd $dir " . ' && pwd && make -j$(getconf _NPROCESSORS_ONLN) && make install V=1', timeout => 600);
 
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
