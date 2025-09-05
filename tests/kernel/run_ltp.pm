@@ -402,7 +402,8 @@ sub run {
     $self->{ltp_tinfo} = $tinfo;
 
     my $fin_msg = "### TEST $test->{name} COMPLETE >>> ";
-    my $cmd_text = qq($test->{command}; echo "$fin_msg\$?.");
+    my $args = '-i 50';
+    my $cmd_text = qq($test->{command} $args; echo "$fin_msg\$?.");
 
     my $klog_stamp = "OpenQA::run_ltp.pm: Starting $test->{name}";
     my $start_time = thetime();
