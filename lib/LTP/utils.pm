@@ -503,6 +503,10 @@ sub install_from_repo {
     if (is_transactional) {
         assert_script_run("transactional-update -n -c pkg install --recommends " . join(' ', @pkgs), 180);
     } else {
+        # workaround to solve installing ltp on SUT with already installed ltp-stable:
+        # the installed ltp-stable-20250530-qa.95.1.x86_64 conflicts with 'ltp' provided by the to be installed ltp-20250903.603e7722-qa.2317.1.x86_64
+        script_run("zypper rm -y -n ltp-stable || true", 300);
+
         zypper_call("in --recommends " . join(' ', @pkgs));
     }
 
