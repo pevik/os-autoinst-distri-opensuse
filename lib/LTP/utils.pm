@@ -108,6 +108,8 @@ sub log_versions {
         upload_logs($ver_linux_log, failok => 1);
     }
 
+    record_info('preempt', script_output('cat /sys/kernel/debug/sched/preempt', proceed_on_failure => 1));
+
     if ($kernel_config) {
         my $cmd = "echo '# $kernel_config'; echo; ";
 
