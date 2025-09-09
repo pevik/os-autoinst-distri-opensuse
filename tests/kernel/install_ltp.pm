@@ -184,6 +184,10 @@ sub install_from_git {
     my $timeout = (is_aarch64 || is_s390x) ? 7200 : 1440;
     my $prefix = get_ltproot();
 
+    # try to remove also ltp-stable and ltp devel before running installing LTP
+    script_run("zypper rm -y -n ltp-stable || true", 300);
+    script_run("zypper rm -y -n ltp || true", 300);
+
     prepare_ltp_git;
     assert_script_run 'make -j$(getconf _NPROCESSORS_ONLN)', timeout => $timeout;
     script_run 'export CREATE_ENTRIES=1';
