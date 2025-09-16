@@ -347,6 +347,10 @@ sub run {
         reboot_on_changes;
     }
 
+    record_info('su 1.', script_output('su - nobody sh -c "id"', proceed_on_failure => 1));
+    assert_script_run('chage -E -1 -M -1 nobody') if is_tumbleweed;
+    record_info('su 2.', script_output('su - nobody sh -c "id"', proceed_on_failure => 1));
+
     setup_network;
 
     # we don't run LVM tests in 32bit, thus not generating the runtest file

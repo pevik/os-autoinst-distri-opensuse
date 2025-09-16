@@ -100,6 +100,8 @@ sub log_versions {
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
     my $run_cmd = is_transactional ? 'transactional-update -c run ' : '';
 
+    record_info('su -', script_output('su - nobody sh -c "id"', proceed_on_failure => 1));
+
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
 
@@ -152,6 +154,7 @@ sub export_ltp_env {
 
 # Set up basic shell environment for running LTP tests
 sub prepare_ltp_env {
+
     assert_script_run('export LTPROOT=' . get_ltproot() . '; export LTP_COLORIZE_OUTPUT=n TMPDIR=/tmp PATH=$LTPROOT/testcases/bin:$PATH');
 
     # setup for LTP networking tests
