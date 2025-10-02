@@ -15,7 +15,7 @@ use power_action_utils 'power_action';
 use utils;
 use version_utils 'is_sle';
 use Time::HiRes qw(clock_gettime CLOCK_MONOTONIC);
-use Utils::Backends 'is_remote_backend';
+use Utils::Backends qw(is_backend_s390x is_remote_backend);
 use serial_terminal;
 use Mojo::File 'path';
 use Mojo::JSON;
@@ -29,8 +29,19 @@ sub do_reboot {
     record_info("reboot");
     #power_action('reboot', textmode => 1, keepconsole => is_remote_backend);
     power_action('reboot');
+    record_info("after reboot");
+
     reconnect_mgmt_console if is_remote_backend || get_var('LTP_BAREMETAL');
-    $self->wait_boot;
+    record_info("reconnect") if is_remote_backend || get_var('LTP_BAREMETAL');
+
+    if (is_backend_s390x) {
+        record_info("is_backend_s390x");
+        $self->wait_boot_past_bootloader(textmode => 1);
+    } else {
+        record_info("NOT is_backend_s390x");
+        $self->wait_boot;
+    }
+    record_info("before select_serial_terminal");
     select_serial_terminal;
     prepare_ltp_env;
 }
