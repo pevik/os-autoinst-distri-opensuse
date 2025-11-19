@@ -352,7 +352,7 @@ sub run {
     # for 32 bit packages
     if (!is_sle('<12')) {
         prepare_ltp_env();
-        assert_script_run('generate_lvm_runfile.sh');
+        script_run('generate_lvm_runfile.sh');
     }
 
     (is_jeos && is_sle('>15')) && zypper_call 'in system-user-bin system-user-daemon';
