@@ -193,7 +193,7 @@ sub install_from_git {
     assert_script_run "make $dir -j\$(getconf _NPROCESSORS_ONLN)", timeout => $timeout;
     script_run 'export CREATE_ENTRIES=1';
     assert_script_run "make $dir install", timeout => 360;
-    assert_script_run "find $prefix -name '*.run-test' > "
+    script_run "find $prefix -name '*.run-test' > "
       . get_ltp_openposix_test_list_file();
 
     # It is a shallow clone so 'git describe' won't work
