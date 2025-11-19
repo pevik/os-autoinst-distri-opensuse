@@ -179,20 +179,34 @@ sub install_selected_from_git {
     assert_script_run("popd");
 }
 
-sub install_from_git {
-    my $timeout = (is_aarch64 || is_s390x) ? 7200 : 1440;
-    my $prefix = get_ltproot();
-    my $dir = get_var('LTP_GIT_DIR', '');
+sub run_make {
+    my $dir = shift;
 
     if ($dir) {
         record_info("dir", $dir);
         $dir = "-C $dir";
     }
 
-    prepare_ltp_git;
     assert_script_run "make $dir -j\$(getconf _NPROCESSORS_ONLN)", timeout => $timeout;
     script_run 'export CREATE_ENTRIES=1';
     assert_script_run "make $dir install", timeout => 360;
+}
+
+sub install_from_git {
+    my $timeout = (is_aarch64 || is_s390x) ? 7200 : 1440;
+    my $prefix = get_ltproot();
+    my $dir = get_var('LTP_GIT_DIR', '');
+
+    prepare_ltp_git;
+
+    if ($dir) {
+        for my $d (split(/:/, $dir)) {
+            run_make("$d");
+        }
+    } else {
+        run_make;
+    }
+
     script_run "find $prefix -name '*.run-test' > "
       . get_ltp_openposix_test_list_file();
 
