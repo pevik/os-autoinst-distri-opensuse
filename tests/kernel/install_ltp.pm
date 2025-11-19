@@ -181,6 +181,7 @@ sub install_selected_from_git {
 
 sub run_make {
     my $dir = shift;
+    my $timeout = (is_aarch64 || is_s390x) ? 7200 : 1440;
 
     if ($dir) {
         record_info("dir", $dir);
@@ -193,13 +194,13 @@ sub run_make {
 }
 
 sub install_from_git {
-    my $timeout = (is_aarch64 || is_s390x) ? 7200 : 1440;
     my $prefix = get_ltproot();
     my $dir = get_var('LTP_GIT_DIR', '');
 
     prepare_ltp_git;
 
     if ($dir) {
+        $dir .= ":runtest/";
         for my $d (split(/:/, $dir)) {
             run_make("$d");
         }
