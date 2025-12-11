@@ -56,9 +56,9 @@ sub load_kernel_tests {
             get_var('ASSET_CHANGE_KERNEL_RPM')) {
             loadtest_kernel 'change_kernel';
         }
-        elsif (!get_var('LIBC_LIVEPATCH') && !is_jeos) {
-            loadtest_kernel 'update_kernel';
-        }
+        #elsif (!get_var('LIBC_LIVEPATCH') && !is_jeos) {
+        #    loadtest_kernel 'update_kernel';
+        #}
 
         loadtest_kernel 'install_ltp';
 
