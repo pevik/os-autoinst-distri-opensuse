@@ -41,6 +41,10 @@ sub run {
 
     init_debug;    # calls select_serial_terminal
 
+    record_info('boot', script_output("find /boot"));
+    record_info('ls', script_output("ls -la /boot"));
+    record_info('detect', script_output('uname="$(uname -r)"; f="/boot/vmlinuz-$uname"; if [ ! -f "$f" ]; then f="/boot/vmlinux-$uname"; fi; if [ ! -f "$f" ]; then f="/boot/Image-$uname"; fi; if [ ! -f "$f" ]; then f="$(ls /boot/Image-$uname.* || true)"; fi; if [ -f "$f" ]; then echo "$f"; else echo "Boot image not found"; fi'));
+
     run_supportconfig;
 
     # Debug code for poo#81142
