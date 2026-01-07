@@ -272,6 +272,10 @@ sub run {
 
     init_debug;    # calls select_serial_terminal
 
+    record_info('boot', script_output("find /boot"));
+    record_info('ls', script_output("ls -la /boot"));
+    record_info('detect', script_output('uname="$(uname -r)"; for f in /boot/Image-$uname /boot/image-$uname /boot/vmlinuz-$uname /boot/vmlinux-$uname ; do if [ -f "$f" ]; then break; fi; done; if [ ! -f "$f" ]; then f="$(ls /boot/Image-$uname.* || true)"; fi; if [ -f "$f" ]; then echo "$f"; else echo "Boot image not found"; fi;'));
+
     $grub_param = setup_kernel_logging;
     export_ltp_env;
 
