@@ -608,9 +608,6 @@ tst_init_iface()
 		ip link set $iface down || return $?
 		ip route flush dev $iface || return $?
 		ip addr flush dev $iface || return $?
-		if [ "$TST_NET_IPV6_ENABLED" = 1 ]; then
-			sysctl -qw net.ipv6.conf.$iface.accept_dad=0 || return $?
-		fi
 		ip link set $iface up
 		return $?
 	fi
@@ -622,9 +619,6 @@ tst_init_iface()
 	tst_rhost_run -c "ip link set $iface down" || return $?
 	tst_rhost_run -c "ip route flush dev $iface" || return $?
 	tst_rhost_run -c "ip addr flush dev $iface" || return $?
-	if [ "$TST_NET_IPV6_ENABLED" = 1 ]; then
-		tst_rhost_run -c "sysctl -qw net.ipv6.conf.$iface.accept_dad=0" || return $?
-	fi
 	tst_rhost_run -c "ip link set $iface up"
 }
 
@@ -837,9 +831,19 @@ tst_netload()
 	local strace_log="/tmp/netstress.$$.$TST_ID"
 
 	for i in $(seq 1 $run_cnt); do
+		tst_res_ TINFO "pev: rhost ip link"
+		tst_rhost_run -c "ip link"
+		tst_res_ TINFO "pev: rhost ip -$TST_IPVER addr"
+		tst_rhost_run -c "ip -$TST_IPVER addr"
+
 		tst_res_ TINFO "pev: strace -ff -tt -T -o $strace_log netstress $s_opts"
 		tst_rhost_run -c "( strace -ff -tt -T -o $strace_log netstress $s_opts & )"
 		ret=$?
+
+		tst_res_ TINFO "pev: after rhost ip link"
+		tst_rhost_run -c "ip link"
+		tst_res_ TINFO "pev: after rhost ip -$TST_IPVER addr"
+		tst_rhost_run -c "ip -$TST_IPVER addr"
 		tst_res_ TINFO "pev: rhost ret: $ret"
 		if [ $ret -ne 0 ]; then
 			tst_res_ TINFO "pev: rhost $strace_log"

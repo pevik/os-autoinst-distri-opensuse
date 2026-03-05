@@ -429,6 +429,10 @@ sub run {
     my ($timed_out, $result_export) = $self->record_ltp_result($runfile, $test, $test_log, $fin_msg, thetime() - $start_time, $is_posix);
     $self->{timed_out} = $timed_out;
 
+    script_run('tar cJf /root/netstress.tar.xz /tmp/netstress.*');
+    upload_logs('/root/netstress.tar.xz');
+    script_run('rm -rfv /root/netstress.tar.xz /tmp/netstress.*');
+
     if ($test_log =~ qr/$fin_msg(\d+)\.$/) {
         $env{retval} = $1;
         $self->upload_oprofile() if defined($self->{oprofile_pid});
