@@ -212,3 +212,20 @@ if ! tst_cmd_run sestatus; then
 	printf 'SELinux mode: '
 	tst_cmd_run getenforce || echo 'unknown'
 fi
+
+echo
+echo '--- /proc/interrupts ---'
+cat /proc/interrupts
+echo
+
+echo
+echo '--- /proc/irq/*/smp_affinity ---'
+ls -1d /proc/irq/*/smp_affinity
+echo
+
+for i in /proc/irq/*/smp_affinity; do echo "* $i"; cat $i; echo; done
+
+echo
+echo '--- /proc/irq/ ---'
+ls -R /proc/irq/
+echo
