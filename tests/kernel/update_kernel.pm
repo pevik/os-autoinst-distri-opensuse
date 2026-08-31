@@ -423,7 +423,7 @@ sub install_kotd {
     install_package("-r KOTD $kernel_flavor", trup_continue => 1);
     install_available_packages("$kernel_flavor-extra $kernel_flavor-optional", repo => 'KOTD');
     my $kver = script_output("rpm -q --qf '%{VERSION}-%{RELEASE}' $kernel_flavor");
-    install_package("$src_flavor=$kver kernel-syms=$kver", trup_continue => 1);
+    #install_package("$src_flavor=$kver kernel-syms=$kver", trup_continue => 1);
     install_package("--recommends $devel_flavor", trup_continue => 1);
 }
 
