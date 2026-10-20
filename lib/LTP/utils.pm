@@ -445,6 +445,18 @@ sub parse_runtest_file {
     my $whitelist = LTP::WhiteList->new();
     my @tests = ();
 
+    my $max = 10;
+    for my $i (0..$max) {
+        foreach my $tmp (qw(zram01 zram02 zram03)) {
+            my $t = $tmp;
+            my $n .= $tmp . $suffix . "_$i";
+            $t .= '.sh' if ($t ne 'zram03');
+            my $test2 = {name => $n, command => $t, last => 0};
+            bmwqemu::fctwarn("pev: add extra $n ($t)");
+            push @tests, $test2;
+        }
+    }
+
     for my $line (@$cmds) {
         next if ($line =~ /(^#)|(^$)/);
         #Command format is "<name> <command> [<args>...] [#<comment>]"
