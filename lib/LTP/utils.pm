@@ -445,6 +445,7 @@ sub parse_runtest_file {
     my $whitelist = LTP::WhiteList->new();
     my @tests = ();
 
+    my $i = 1;
     for my $line (@$cmds) {
         next if ($line =~ /(^#)|(^$)/);
         #Command format is "<name> <command> [<args>...] [#<comment>]"
@@ -455,6 +456,19 @@ sub parse_runtest_file {
         if ($test->{name} =~ m/$cmd_pattern/ && !($test->{name} =~ m/$cmd_exclude/)) {
             push @tests, $test;
         }
+
+        # exit on epoll_wait02 epoll_pwait03 to save time
+        if ($test->{name} =~ m/epoll_pwait03/) {
+            bmwqemu::fctwarn("pev: skip on " . $test->{name});    # FIXME: debug
+            last;
+        }
+        # debug epoll_wait02 epoll_pwait03, both with -p to always print frequency plot
+        foreach my $t (qw(epoll_wait02 epoll_pwait03)) {
+            my $test2 = {name => $t . $suffix . "_$i", command => "$t -p", last => 0};
+            bmwqemu::fctwarn("pev: add extra " . $t . $suffix . "_$i");    # FIXME: debug
+            push @tests, $test2;
+        }
+        $i = $i + 1;
     }
 
     ${tests [-1]}->{last} = 1 if (@tests);
