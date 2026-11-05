@@ -51,9 +51,9 @@ sub load_kernel_tests {
             loadtest 'console/suseconnect_scc' if is_sle_micro;
         }
 
-        if ((!get_var('LIBC_LIVEPATCH') && !is_jeos)) {
-            loadtest_kernel 'update_kernel';
-        }
+        #if ((!get_var('LIBC_LIVEPATCH') && !is_jeos)) {
+        #    loadtest_kernel 'update_kernel';
+        #}
 
         loadtest_kernel 'install_ltp';
 
