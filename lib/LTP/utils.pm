@@ -115,6 +115,15 @@ sub log_versions {
     my $kernel_config = script_output('for f in "/boot/config-$(uname -r)" "/usr/lib/modules/$(uname -r)/config" /proc/config.gz; do if [ -f "$f" ]; then echo "$f"; break; fi; done');
     my $run_cmd = is_transactional ? 'transactional-update -c run ' : '';
 
+    # DEBUG
+    my $foo = 'zram01.sh';
+    my $dir = 'testcases/kernel/device-drivers/zram/';
+    my $script_url = data_url("ltp/$foo");
+    assert_script_run("curl -sS -o /tmp/$foo $script_url");
+    assert_script_run("cp -v /tmp/$foo $dir", timeout => 300);
+    record_info("UPDATE $foo", "update $foo: ". script_output("md5sum /tmp/$foo"));
+    assert_script_run("echo $dir; ls -la $dir || true; pwd; cd $dir " . ' && pwd && make -j$(getconf _NPROCESSORS_ONLN) && make install V=1', timeout => 600);
+
     script_run("$run_cmd rpm -qi $kernel_pkg > $kernel_pkg_log 2>&1", timeout => 120);
     upload_logs($kernel_pkg_log, failok => 1);
 
